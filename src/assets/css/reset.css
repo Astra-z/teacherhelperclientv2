@@ -1,0 +1,6 @@
+html,body{
+  /*html和body之间用逗号*/
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
