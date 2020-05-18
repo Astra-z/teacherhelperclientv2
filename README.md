@@ -1,4 +1,4 @@
-# mallmanager
+# teacherhelperv2
 
 > A Vue.js project
 
