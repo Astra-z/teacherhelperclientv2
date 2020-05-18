@@ -28,6 +28,31 @@
 
 5.配置home路由
   1.js编程式导航this.$router.push({name:'home'})
-  2.App.vue <router-viewer>使用
+  2.App.vue <router-viewer>使用(看在哪里使用路由)
   3.新建home组件
   4.router的index.js配置routers
+
+6.设置拦截
+  利用localStorage.setItem('token',data.token)
+  login里面存储token信息
+  如果有token信息则显示home 没有就跳转到login
+    //获取token
+          //if token 继续渲染
+          //token 跳到登录
+        //newVue有实例之前自动触发
+        beforeCreate(){
+          const token =localStorage.getItem('token')
+          if(!token){
+            this.$router.push({name:'login'})
+          }
+        }
+
+7.设置user组件
+  1. this.$http.defaults.headers.common['Authorization'] = token;设置请求头
+  2.const {data:{pagenum,total,users},meta:{msg,status}}=res.data
+    const里面的属性可以直接用 如this.userList=users
+  3.设置属性
+     userList: [],
+     total:-1,
+     pagenum:1,
+     pagesize:5,

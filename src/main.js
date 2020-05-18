@@ -7,6 +7,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import './assets/css/reset.css'
+import moment from 'moment'
 //插件使用
 import MyHttp from './plugins/http.js'
 
@@ -18,6 +19,9 @@ import MyHttp from './plugins/http.js'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(MyHttp)
+Vue.filter('fmtdate',(v)=>{
+  return moment(v).format('YYYY-MM-DD HH:mm:ss')
+})
 
 
 /* eslint-disable no-new */
