@@ -26,7 +26,7 @@
           <!--1-->
           <el-submenu :index="''+item1.order" v-for="(item1,index) in menus" :key="index">
             <template slot="title">
-              <i class="el-icon-location"></i>
+              <i :class="item1.icon!==null?item1.icon: defaultclass"></i>
               <span>{{item1.text}}</span>
             </template>
             <el-menu-item class="aside_menu_item" :index="item2.url"
@@ -55,6 +55,7 @@
         return {
           user: [],
           menus: [],
+          defaultclass: "el-icon-location",
         }
       },
       beforeCreate(){
@@ -77,7 +78,19 @@
           const username=JSON.parse(localStorage.getItem('user')).username
           const res=await this.$http.get(`/menus/getUserMenus?username=`+username);
           this.menus=res.data.data.children;
-          console.log(this.menus)
+          this.sortMenus(this.menus);
+        },
+        //排序菜单
+        sortMenus(arr){
+          var newarr=[]
+          for(var i=0;i<arr.length;i++){
+            for(var j=0;j<arr.length;j++){
+              if(arr[j].order==(i+1).toString()){
+                newarr.push(arr[j])
+              }
+            }
+          }
+          this.menus=[].concat(newarr)
         }
       }
     }
@@ -105,6 +118,7 @@
 
   .main{
     background-color: #f6f6f6;
+    height: 100%;
   }
   .middle{
     text-align: center;

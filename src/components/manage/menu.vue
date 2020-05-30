@@ -16,9 +16,9 @@
               v-model="query">
       <el-button class="input_button" slot="append" icon="el-icon-search" size="mini"></el-button>
     </el-input>
-    <el-button type="success" plain @click="dialogFormVisible = true">添加</el-button>
-    <!--对话框-->
-    <el-dialog title="添加权限" :visible.sync="dialogFormVisible">
+    <el-button type="success" plain @click="insertdialogFormVisible = true">添加</el-button>
+    <!--添加权限对话框-->
+    <el-dialog title="添加权限" :visible.sync="insertdialogFormVisible">
       <el-form :model="form">
         <el-form-item label="菜单名" :label-width="formLabelWidth">
           <el-input v-model="form.menuName" autocomplete="off"></el-input>
@@ -59,19 +59,19 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false;insertPermsList()">确 定</el-button>
+        <el-button @click="insertdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="insertdialogFormVisible = false;insertPermsList()">确 定</el-button>
       </div>
     </el-dialog>
 
     <!--更新信息对话框-->
-    <el-dialog title="添加权限" :visible.sync="updatedialogFormVisible">
+    <el-dialog title="更新权限" :visible.sync="updatedialogFormVisible">
       <el-form :model="updateform">
         <el-form-item label="菜单名" :label-width="formLabelWidth">
           <el-input v-model="updateform.text" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="url" :label-width="formLabelWidth">
-          <el-input v-model="updateform.url" autocomplete="off"></el-input>
+          <el-input  v-model="updateform.url" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="权限" :label-width="formLabelWidth">
           <el-input v-model="updateform.perms" autocomplete="off"></el-input>
@@ -97,7 +97,7 @@
         <el-button type="primary" @click="updatePermsList()">确 定</el-button>
       </div>
     </el-dialog>
-
+    <!--信息表-->
     <el-table
       :data="menudata"
       style="width: 100%;margin-bottom: 20px;"
@@ -109,7 +109,7 @@
         prop="id"
         label="菜单ID"
         sortable
-        width="180">
+        width="120">
       </el-table-column>
       <el-table-column
         prop="text"
@@ -122,8 +122,11 @@
         label="url">
       </el-table-column>
       <el-table-column
-        prop="icon"
-        label="图标">
+        label="图标"
+        width="80">
+        <template slot-scope="menu">
+          <i :class="menu.row.icon"></i>
+        </template>
       </el-table-column>
       <el-table-column
         label="操作">
@@ -160,7 +163,7 @@
         updateform: {
         },
 
-        dialogFormVisible: false,
+        insertdialogFormVisible: false,
         updatedialogFormVisible:false,
         formLabelWidth: '120px'
       }
@@ -174,27 +177,38 @@
 
       showUpdateMenusDia(menus){
         this.updatedialogFormVisible=true;
-        console.log(menus)
+        //选中的menus传到对话框
         this.updateform=menus;
+        console.log(this.updateform)
       },
+      //更新权限
       async updatePermsList(){
-        //添加权限
+
+        if(this.$refs.DeviceGroupTree.getCheckedKeys().length>1){
+          this.$message.error("最多添加一个父节点！")
+          return
+        }
         var data={}
         data.menuName = this.updateform.text
         data.url=this.updateform.url
-        data.perms = this.form.menuURL + this.form.menuPerm;
+        data.perms = this.updateform.perms;
         data.parentId=this.$refs.DeviceGroupTree.getCheckedKeys()[0];
-        const res = await this.$http.patch('menus/', data);
+        if(data.parentId==null)
+          data.parentId=0
+        const res = await this.$http.patch('menus/'+this.updateform.id, data);
         const {status,msg} = res.data
+
         if (status === 200) {
-          this.$message.success("添加成功")
+          this.$message.success("更新成功！")
           this.getpermList();
           this.form = {}
         }
         else{
-          this.$message.error("添加失败")
+          this.$message.error("更新失败！")
         }
+        this.updatedialogFormVisible=false;
       },
+      //获取menulist
       async getpermList() {
         // query	查询参数	可以为空
         // pagenum	当前页码	不能为空
@@ -215,6 +229,10 @@
 
       async insertPermsList() {
         //添加权限
+        if(this.$refs.DeviceGroupTree.getCheckedKeys().length>1){
+          this.$message.error("最多添加一个父节点！")
+          return
+        }
         var data={}
         data.menuName = this.form.menuName
         data.url=this.form.menuURL
@@ -224,12 +242,12 @@
           this.$http.post('menus/', data);
         const {status,msg} = res.data
         if (status === 200) {
-          this.$message.success("添加成功")
+          this.$message.success("添加成功!")
           this.getpermList();
           this.form = {}
         }
         else{
-          this.$message.error("添加失败")
+          this.$message.error("添加失败!")
         }
       },
       //选中复选框
