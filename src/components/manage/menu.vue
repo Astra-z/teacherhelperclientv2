@@ -237,7 +237,11 @@
         data.menuName = this.form.menuName
         data.url=this.form.menuURL
         data.perms = this.form.menuURL + this.form.menuPerm;
+
         data.parentId=this.$refs.DeviceGroupTree.getCheckedKeys()[0];
+        console.log(data.parentId)
+        if(this.$refs.DeviceGroupTree.getCheckedKeys().length===0)
+          data.parentId=0;
         const res = await
           this.$http.post('menus/', data);
         const {status,msg} = res.data
