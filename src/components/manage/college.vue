@@ -19,7 +19,45 @@
     <!--3.表格-->
     <el-table
       :data="collegeList"
-      style="width: 100%">
+      style="width: 100%"
+
+      >
+      <el-table-column
+        type="expand"
+        width="40">
+        <template slot-scope="scope">
+          <el-row>
+            <el-col :span="4">
+              <el-tag>专业</el-tag>
+              <i class="el-icon-arrow-right"></i>
+            </el-col>
+            <el-col :span="20">
+              <el-tag
+                type="success"
+                :key="spec.specId"
+                v-for="spec in scope.row.specList"
+                closable
+                :disable-transitions="false"
+                @close="deleteSpec(spec,scope.row)">
+                {{spec.specName}}
+              </el-tag>
+              <el-input
+                class="input-new-tag"
+                v-if="insertSpecInputVisible"
+                v-model="insertSpecinputValue"
+                ref="saveTagInput"
+                size="small"
+                @keyup.enter.native="$event.target.blur"
+                @blur="handleInputConfirm(scope.row)">
+                <!-- @blur失去焦点，enter触发会执行blur所以会执行两次，用$event.target.blur防止执行两次-->
+              </el-input>
+              <el-button v-else class="button-new-tag" size="small"
+                         @click="showSpecInsertInput">+ New Tag</el-button>
+
+            </el-col>
+          </el-row>
+        </template>
+      </el-table-column>
       <el-table-column
         type="index"
         label="#"
@@ -104,7 +142,7 @@
         total: -1,
         pagenum: 1,
         pagesize: 100,
-
+        hasChildrens:true,
         //对话框属性
         updatedialogFormVisible: false,
         insertdialogFormVisible: false,
@@ -116,6 +154,11 @@
         menudata: [],
         //树默认选中节点
         defaultcheckList:[],
+
+        //spec标签属性
+        insertSpecInputVisible: false,
+        insertSpecinputValue: '',
+
       }
     },
     created() {
@@ -129,10 +172,13 @@
         // pagesize	每页显示条数	不能为空
         const res = await this.$http
           .get(`colleges/?page=${this.pagenum}&limit=${this.pagesize}`)
-        console.log(res)
         const {data, status, msg} = res.data
         if (status === 200) {
           this.collegeList = data;
+          for (var i = 0;i<this.collegeList.length;i++){
+            this.collegeList[i].children=[{collegeId: 100+i}]
+          }
+          console.log(this.collegeList)
           this.total = data.length
         }
         else {
@@ -197,6 +243,56 @@
           this.$message.error("更新失败!")
         }
       },
+      //删除专业标签
+      deleteSpec(spec,college) {
+        let deleteSpecId=spec.specId
+        this.$http.delete('specs/'+deleteSpecId).then(
+          (res)=>{
+            const {status,msg,data}=res.data;
+            console.log(res)
+            if(status===200){
+              this.$message.success(msg);
+              college.specList.splice(college.specList.indexOf(spec),1);
+            }
+            else {
+              this.$message.error(msg)
+            }
+          }
+        )
+
+      },
+      //显示添加专业标签
+      showSpecInsertInput(){
+        this.insertSpecInputVisible = true;
+        //$nextTick更新dom操作
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
+      //执行插入操作
+      async handleInputConfirm(college) {
+        var specList=college.specList
+        let insertSpecinputValue = this.insertSpecinputValue;
+        //构造post数据
+        if (insertSpecinputValue) {
+          var insertSpec={}
+          insertSpec.collegeId=college.collegeId;
+          insertSpec.specName=this.insertSpecinputValue;
+          const res=await this.$http.post('specs/',insertSpec)
+          const {status,msg,data}=res.data;
+          if(status===200){
+            specList.push(data);
+            this.$message.success(msg)
+          }
+          else{
+            this.$message.error(msg)
+          }
+        }
+        //清空并隐藏输入框
+        this.insertSpecInputVisible = false;
+        this.insertSpecinputValue = '';
+      },
+
       //复选框单选（待做）
       checkGroupNode() {
       }
@@ -215,6 +311,22 @@
 
   label {
     font-size: 15px;
+  }
+
+  .el-tag + .el-tag {
+    margin-left: 10px;
+  }
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
   }
 
   /*.input_text .input_button{*/
