@@ -23,13 +23,13 @@
         <el-menu class="aside_menu"
           :unique-opened="true"
           :router="true">
-          <!--1-->
+          <!--导航-->
           <el-submenu :index="''+item1.order" v-for="(item1,index) in menus" :key="index">
             <template slot="title">
               <i :class="item1.icon!==null?item1.icon: defaultclass"></i>
               <span>{{item1.text}}</span>
             </template>
-            <el-menu-item class="aside_menu_item" :index="item2.url"
+            <el-menu-item class="aside_menu_item" :index="'/'+item2.url"
                           v-for="(item2,index) in item1.children" :key="index">
               <i class="el-icon-menu"></i>
               <span>{{item2.text}}</span>
@@ -113,7 +113,7 @@
   }
   .aside .aside_menu{
     border-radius: 6px;
-    height: 100%;
+    height: 99%;
   }
 
   .main{

@@ -28,10 +28,10 @@
           <el-select v-model="form.menuURL" placeholder="请选择权限类型">
             <el-option label="学院" value="college"></el-option>
             <el-option label="课程" value="course"></el-option>
-            <el-option label="上课时间" value="course_frequency"></el-option>
+            <el-option label="上课时间" value="coursefrequency"></el-option>
             <el-option label="成绩" value="score"></el-option>
             <el-option label="专业" value="spec"></el-option>
-            <el-option label="学生_导师" value="student_mentor"></el-option>
+            <el-option label="学生_导师" value="studentmentor"></el-option>
             <el-option label="用户" value="user"></el-option>
           </el-select>
         </el-form-item>
@@ -265,7 +265,7 @@
 
 <style scoped>
   .box-card {
-    height: 100%;
+    height: 99%;
   }
 
   .input_text {

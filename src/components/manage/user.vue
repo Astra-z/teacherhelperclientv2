@@ -130,7 +130,7 @@
 
 <style scoped>
   .box-card{
-    height: 100%;
+    height: 99%;
   }
   .input-with-select{
     width: 300px;

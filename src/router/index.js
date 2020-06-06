@@ -9,6 +9,9 @@ import Roles from '../components/manage/role.vue'
 import Perms from '../components/manage/menu.vue'
 import CourseList from '../components/manage/courselist.vue'
 import College from '../components/manage/college.vue'
+import Course from '../components/manage/course.vue'
+import CourseAdd from '../components/manage/courseadd.vue'
+import CourseDetail from  '../components/manage/coursedetail.vue'
 
 Vue.use(Router)
 
@@ -40,14 +43,29 @@ export default new Router({
           component:Perms
         },
         {
-          name:'course',
-          path:'/course',
+          name:'courselist',
+          path:'/courselist',
           component:CourseList
         },
         {
           name:'college',
           path:'/college',
           component:College
+        },
+        {
+          name:'course',
+          path:'/course',
+          component:Course
+        },
+        {
+          name:'courseadd',
+          path:'/courseadd',
+          component:CourseAdd
+        },
+        {
+          name:'coursedetail',
+          path:'/coursedetail/:courseId',
+          component:CourseDetail
         },
       ]
     }

@@ -1,8 +1,13 @@
 <template>
-  <div class="class-table">
+  <el-card class="box-card">
+  <el-breadcrumb separator-class="el-icon-arrow-right">
+    <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+    <el-breadcrumb-item>管理</el-breadcrumb-item>
+    <el-breadcrumb-item>课程表查看</el-breadcrumb-item>
+  </el-breadcrumb><br>
+  <div class="class-table" v-model="data">
     <div class="table-wrapper">
       <div class="tabel-container">
-
         <table>
           <thead>
             <tr>
@@ -17,20 +22,23 @@
               <p class="period">{{ lesson }}</p>
             </td>
             <!--(course[lessonIndex]||{}).courseDisplay-->
-            <td :rowspan="(course[lessonIndex]||{}).courseSpan"
+            <td @click="openMessage((course[lessonIndex]||{}))"
+                :rowspan="(course[lessonIndex]||{}).courseSpan"
                 v-show="(course[lessonIndex]||{}).courseDisplay"
                 v-for="(course, courseIndex) in classTableData.courses" :key="courseIndex">
               <!--数组中的有些东西不是对象导致取不到.courseName 因此要加||{}-->
-              {{(course[lessonIndex]||{}).courseName||'-'}}
-              <p >{{ (course[lessonIndex]||{}).courseAdress||'' }}</p>
+              <div >
+                {{(course[lessonIndex]||{}).courseName||'-'}}
+                <p>{{ (course[lessonIndex]||{}).courseAddress }}</p>
+              </div>
             </td>
-
           </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+  </el-card>
 </template>
 
 <script>
@@ -55,51 +63,51 @@
         },
         //模拟数据
         data:[
-          {
-            courseId:1,
-            courseName:'高等数学',
-            courseTeacher:'张三',
-            weekday: 1,
-            courseStartTime: 0,
-            courseEndTime: 1,
-            courseAdress:'3B201',
-          },
-          {
-            courseId:2,
-            courseName:'计算机',
-            courseTeacher:'张三',
-            weekday: 1,
-            courseStartTime: 2,
-            courseEndTime: 4,
-            courseAdress:'1A502',
-          },
-          {
-            courseId:3,
-            courseName:'大学英语',
-            courseTeacher:'张三',
-            weekday: 1,
-            courseStartTime: 6,
-            courseEndTime: 7,
-            courseAdress:'3G201',
-          },
-          {
-            courseId:1,
-            courseName:'高等数学',
-            courseTeacher:'张三',
-            weekday: 5,
-            courseStartTime: 3,
-            courseEndTime: 5,
-            courseAdress:'3B201',
-          },
-          {
-            courseId:1,
-            courseName:'高等数学',
-            courseTeacher:'张三',
-            weekday: 2,
-            courseStartTime: 1,
-            courseEndTime: 3,
-            courseAdress:'3B201',
-          },
+          // {
+          //   courseId:1,
+          //   courseName:'高等数学',
+          //   courseTeacher:'张三',
+          //   weekday: 0,
+          //   courseStartTime: 0,
+          //   courseEndTime: 1,
+          //   courseAdress:'3B201',
+          // },
+          // {
+          //   courseId:2,
+          //   courseName:'计算机',
+          //   courseTeacher:'张三',
+          //   weekday: 0,
+          //   courseStartTime: 2,
+          //   courseEndTime: 4,
+          //   courseAdress:'1A502',
+          // },
+          // {
+          //   courseId:3,
+          //   courseName:'大学英语',
+          //   courseTeacher:'张三',
+          //   weekday: 0,
+          //   courseStartTime: 6,
+          //   courseEndTime: 7,
+          //   courseAdress:'3G201',
+          // },
+          // {
+          //   courseId:1,
+          //   courseName:'高等数学',
+          //   courseTeacher:'张三',
+          //   weekday: 4,
+          //   courseStartTime: 3,
+          //   courseEndTime: 5,
+          //   courseAdress:'3B201',
+          // },
+          // {
+          //   courseId:1,
+          //   courseName:'高等数学',
+          //   courseTeacher:'张三',
+          //   weekday: 1,
+          //   courseStartTime: 1,
+          //   courseEndTime: 3,
+          //   courseAdress:'3B201',
+          // },
         ]
       };
     },
@@ -118,43 +126,70 @@
         return character[num];
       },
 
-      createCourseList(){
-        //初始化classTableData
-        var courses=this.classTableData.courses
-        for(var i=0;i<5;i++) {
-          for (var j = 0; j <8; j++) {
-            courses[i][j] ={}
-            courses[i][j].courseDisplay = true
-          }
-        }
-
-        //放入后台传的数据
-        var data=this.data;
-        for(var i=0;i<data.length;i++) {
-          if (data[i] != null) {
-            let n = data[i].courseStartTime, m = data[i].weekday - 1;
-            this.classTableData.courses[m][n] = data[i]
-          }
-        }
-
-        //合并单元格
-        for(var i=0;i<courses.length;i++){
-          for(var j=0;j<courses[i].length;j++){
-            if(courses[i][j].hasOwnProperty('courseStartTime')){
-              courses[i][j].courseSpan=courses[i][j].courseEndTime-courses[i][j].courseStartTime+1
-              courses[i][j].courseDisplay=true;
-              let k=courses[i][j].courseSpan
-              for(var m=j+1;m<j+k;m++){
-                courses[i][m]={}
-                courses[i][m].courseSpan=1
-                courses[i][m].courseDisplay=false
+      async createCourseList(){
+          const res= await this.$http.get('courses/')
+          const {status,msg,data}=res.data
+          let count=0;
+          for(let i=0;i<data.length;i++){
+            if (data[i].courseTimeList.length>0){
+              for (let j = 0; j < data[i].courseTimeList.length; j++) {
+                //!!!!vue对直接赋值数组的操作不会监听，因此如果写成this.data[count]={}会发生
+                //数据改变了但是vue不进行渲染的情况
+                this.data.push({})
+                this.data[count].courseId=data[i].courseId
+                this.data[count].weekday=data[i].courseTimeList[j].weekday
+                this.data[count].courseStartTime=data[i].courseTimeList[j].startLesson
+                this.data[count].courseEndTime=data[i].courseTimeList[j].endLesson
+                this.data[count].courseName=data[i].courseName
+                this.data[count].courseAddress=data[i].courseAddress
+                this.data[count].courseTeacher=data[i].courseTeacher
+                count++;
               }
-              j=j+k-1;//跳过已经不显示的单元格
             }
           }
-        }
+          console.log(this.data)
+          //初始化classTableData
+          let courses=this.classTableData.courses
+          for(let i=0 ;i< 5; i++) {
+            for (let j = 0; j < 8; j++) {
+              courses[i].push({})
+              courses[i][j].courseDisplay = true
+            }
+          }
+          //放入后台传的数据
+          for(let i=0;i<this.data.length;i++) {
+            if (this.data[i] != null) {
+              let n = this.data[i].courseStartTime, m = this.data[i].weekday;
+              this.classTableData.courses[m][n] = this.data[i]
+            }
+          }
 
-
+          //合并单元格
+          for(let i=0;i<courses.length;i++){
+            for(let j=0;j<courses[i].length;j++){
+              if(courses[i][j].hasOwnProperty('courseStartTime')){
+                courses[i][j].courseSpan=courses[i][j].courseEndTime-courses[i][j].courseStartTime+1
+                courses[i][j].courseDisplay=true;
+                let k=courses[i][j].courseSpan
+                for(let m=j+1;m<j+k;m++){
+                  courses[i][m]={}
+                  courses[i][m].courseSpan=1
+                  courses[i][m].courseDisplay=false
+                }
+                j=j+k-1;//跳过已经不显示的单元格
+              }
+            }
+          }
+          console.log(courses)
+      },
+      openMessage(course){
+        this.$message.success(course.courseName)
+        this.$router.push({
+          name:'coursedetail',
+          params:{
+            courseId: course.courseId
+          }
+        })
       }
     }
   };
@@ -169,8 +204,8 @@
     }
     .tabel-container {
       margin: 7px;
-
       table {
+        border-radius: 2px;
         border: 1px solid #ccc;
         table-layout: fixed;
         width: 100%;

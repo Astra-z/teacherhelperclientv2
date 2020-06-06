@@ -175,10 +175,6 @@
         const {data, status, msg} = res.data
         if (status === 200) {
           this.collegeList = data;
-          for (var i = 0;i<this.collegeList.length;i++){
-            this.collegeList[i].children=[{collegeId: 100+i}]
-          }
-          console.log(this.collegeList)
           this.total = data.length
         }
         else {
@@ -302,7 +298,7 @@
 
 <style scoped>
   .box-card {
-    height: 100%;
+    height: 99%;
   }
 
   .input_text {
