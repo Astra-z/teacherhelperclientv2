@@ -29,10 +29,12 @@
             <el-option label="学院" value="college"></el-option>
             <el-option label="课程" value="course"></el-option>
             <el-option label="上课时间" value="coursefrequency"></el-option>
+            <el-option label="课程作业" value="coursehomework"></el-option>
             <el-option label="成绩" value="score"></el-option>
             <el-option label="专业" value="spec"></el-option>
             <el-option label="学生_导师" value="studentmentor"></el-option>
             <el-option label="用户" value="user"></el-option>
+
           </el-select>
         </el-form-item>
         <el-form-item label="权限" :label-width="formLabelWidth">
@@ -102,7 +104,6 @@
       :data="menudata"
       style="width: 100%;margin-bottom: 20px;"
       row-key="id"
-      border
       :default-expand-all="false"
       :tree-props="{children: 'children', hasChildren: 'hasChildrens'}">
       <el-table-column
@@ -134,7 +135,6 @@
           <el-button size="mini"
                      @click="showUpdateMenusDia(menu.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button size="mini" :plain="true" type="success" icon="el-icon-check" circle></el-button>
           <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
         </template>
       </el-table-column>

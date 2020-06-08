@@ -21,16 +21,18 @@
         icon="el-icon-search" size="large"></el-button>
     </div>
     <br>
+    <div v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'">
+      <label>课程名：</label>
+      <el-input class="input_text"
+                placeholder="请输入内容"
+                prefix-icon="el-icon-search"
+                v-model="query">
+        <el-button class="input_button" slot="append" icon="el-icon-search" size="mini"></el-button>
+      </el-input>
+      <el-button type="success" plain @click="$router.push({name:'courseadd'})">添加</el-button><br>
+    </div>
 
-    <label>课程名：</label>
-    <el-input class="input_text"
-              placeholder="请输入内容"
-              prefix-icon="el-icon-search"
-              v-model="query">
-      <el-button class="input_button" slot="append" icon="el-icon-search" size="mini"></el-button>
-    </el-input>
 
-    <el-button type="success" plain @click="$router.push({name:'courseadd'})">添加</el-button><br>
     <!--3.表格-->
     <el-table
       :data="courseList"
@@ -55,6 +57,16 @@
         width="100">
       </el-table-column>
       <el-table-column
+        prop="studentNum"
+        label="已选人数"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="maxNum"
+        label="最大人数"
+        width="100">
+      </el-table-column>
+      <el-table-column
         prop=""
         label="操作">
         <template slot-scope="courseList">
@@ -62,10 +74,21 @@
                      @click="openInfoCourseForm(courseList.row)"
                      :plain="true" type="info" icon="el-icon-more" circle></el-button>
           <el-button size="mini"
+                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
                      @click="openUpdateCourseForm(courseList.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle>
           </el-button>
-          <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button size="mini"
+                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
+                     :plain="true" type="danger"
+                     icon="el-icon-delete" circle></el-button>
+          <el-button size="mini"
+                     :plain="true"
+                     type="success"
+                     icon="el-icon-check"
+                     @click="selectCourseOpen(courseList.row)"
+                     v-if="(user||{}).roleName[0]=='学生'"
+                     circle></el-button>
 
         </template>
       </el-table-column>
@@ -105,9 +128,7 @@
         <el-form-item label="专业" :label-width="formLabelWidth">
           <el-input v-model="updateform.specName" autocomplete="off"></el-input>
         </el-form-item>
-
       </el-form>
-
       <div slot="footer" class="dialog-footer">
         <el-button @click="updatedialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="updateCourse()">确 定</el-button>
@@ -125,6 +146,7 @@
         fieldName: "",
         //列表
         courseList: [],
+        selectedCourseList:[],
         collegeList: [],
         specIdValue: "",
         total: -1,
@@ -140,11 +162,14 @@
         menudata: [],
         //树默认选中节点
         defaultcheckList:[],
+        user:{},
       }
     },
     created() {
+      this.user=JSON.parse(localStorage.getItem('user'))
       this.getCourseList();
       this.getCollegeList();
+      console.log(this.user)
     },
     methods: {
       //获取college列表
@@ -162,12 +187,11 @@
         else {
           this.$message.error(msg)
         }
-        console.log()
         this.collegeList=JSON.parse(
           JSON.stringify(this.collegeList)
             .replace(/collegeName/g, 'label')
             .replace(/specName/g, 'label'))
-        console.log( this.collegeList)
+        console.log(this.collegeList)
       },
       //获取course列表
       async getCourseList() {
@@ -176,7 +200,6 @@
         // pagesize	每页显示条数	不能为空
         const res = await this.$http
           .get(`courses/?page=${this.pagenum}&limit=${this.pagesize}`)
-        console.log(res)
         const {data, status, msg} = res.data
         if (status === 200) {
           this.courseList = data;
@@ -185,6 +208,12 @@
         else {
           this.$message.error(msg)
         }
+        if(this.user.roleName[0]=='学生'){
+          const selecteddata=await this.$http
+            .get(`scores/?fieldValue=${this.user.sid}&fieldName=studentId`)
+          this.selectedCourseList=selecteddata.data.data
+        }
+
       },
       //打开添加course对话框
       async openInsertCourseForm() {
@@ -192,11 +221,6 @@
       },
       //添加course
       async insertCourse() {
-        this.insertform.menuIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
-        if (this.insertform.menuIdList.length <= 0) {
-          this.$message.error("至少选择一个权限！")
-          return;
-        }
         const res = await this.$http.post('courses/', this.insertform);
         const {status, msg} = res.data
         if (status === 200) {
@@ -234,11 +258,6 @@
       //更新course
       async updateCourse() {
         this.updatedialogFormVisible = false;
-        this.updateform.menuIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
-        if (this.updateform.menuIdList.length <= 0) {
-          this.$message.error("至少选择一个权限！")
-          return;
-        }
         const res = await this.$http.patch('courses/'+this.updateform.courseId, this.updateform);
         const {status, msg} = res.data
         if (status === 200) {
@@ -284,6 +303,41 @@
         this.$alert(h('div',null, newDatas), '课程详情', {
           confirmButtonText: '确定',
         });
+      },
+      //学生选课
+      selectCourseOpen(course) {
+        this.$confirm('是否添加该课程?', '确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info'
+        }).then(async () => {
+          if(course.studentNum==course.maxNum){
+            this.$message.error("课程人数已满")
+            return
+          }
+          console.log(this.selectedCourseList,course.courseId)
+          for (let i = 0; i <this.selectedCourseList.length ; i++) {
+            if (course.courseId===this.selectedCourseList[i].courseId) {
+              this.$message.error("不能重复选择课程")
+              return
+            }
+          }
+          var selectcoursedata={
+            studentId:this.user.sid,
+            courseId:course.courseId,
+            teacherId:course.teacherId
+          }
+          // console.log(selectcoursedata)
+          const res=await this.$http.post('scores/',selectcoursedata)
+          const{status,msg,data}= res.data
+          if(status===200){
+            this.$message.success("选择课程成功!");
+          }
+          else {
+            this.$message.error("添加失败!")
+          }
+          this.getCourseList()
+        })
       },
       //复选框单选（待做）
       checkGroupNode() {

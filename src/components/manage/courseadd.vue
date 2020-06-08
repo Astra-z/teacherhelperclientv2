@@ -150,12 +150,7 @@
         </div>
       </el-tab-pane>
     </el-tabs>
-
-
-
-
   </el-card>
-
 </template>
 
 <script>

@@ -39,6 +39,9 @@
 
       </el-aside>
       <el-main class="main">
+        <el-button
+          @click.prevent="websocketsend"
+          class="form_button" type="primary">websocketsend</el-button>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -65,9 +68,36 @@
         }
       },
       created(){
-        this.getUserMenu();
+        this.user =JSON.parse(localStorage.getItem('user'))
+        this.getUserMenu()
+        this.initWebSocket()
       },
       methods:{
+        initWebSocket: function () {
+          // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
+          this.websock = new WebSocket("ws://127.0.0.1:8888/webSocket/"+this.user.userId);
+          this.websock.onopen = this.websocketonopen;
+          this.websock.onerror = this.websocketonerror;
+          this.websock.onmessage = this.websocketonmessage;
+          this.websock.onclose = this.websocketclose;
+        },
+        websocketonopen: function () {
+          console.log("WebSocket连接成功");
+        },
+        websocketonerror: function (e) {
+          console.log("WebSocket连接发生错误");
+        },
+        websocketonmessage: function (e) {
+          console.log(e.data);                // console.log(e);
+        },
+        websocketclose: function (e) {
+          console.log("connection closed (" + e.code + ")");
+        },
+        async websocketsend(){
+          console.log(this.user.userId)
+          await this.$http.get(`webSocketSend/?userId=${this.user.userId}`)
+        },
+
         handlerSignout(){
           localStorage.clear()
           this.$message.success("退出成功")
@@ -78,20 +108,21 @@
           const username=JSON.parse(localStorage.getItem('user')).username
           const res=await this.$http.get(`/menus/getUserMenus?username=`+username);
           this.menus=res.data.data.children;
-          this.sortMenus(this.menus);
+          console.log(this.menus)
+          // this.sortMenus(this.menus);
         },
         //排序菜单
-        sortMenus(arr){
-          var newarr=[]
-          for(var i=0;i<arr.length;i++){
-            for(var j=0;j<arr.length;j++){
-              if(arr[j].order==(i+1).toString()){
-                newarr.push(arr[j])
-              }
-            }
-          }
-          this.menus=[].concat(newarr)
-        }
+        // sortMenus(arr){
+        //   var newarr=[]
+        //   for(var i=0;i<arr.length;i++){
+        //     for(var j=0;j<arr.length;j++){
+        //       if(arr[j].order==(i+1).toString()){
+        //         newarr.push(arr[j])
+        //       }
+        //     }
+        //   }
+        //   this.menus=[].concat(newarr)
+        // }
       }
     }
 </script>

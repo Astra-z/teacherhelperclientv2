@@ -46,6 +46,7 @@
   export default {
     data() {
       return {
+        user:{},
         classTableData: {
           lessons: [
             '08:00-09:00',
@@ -59,7 +60,7 @@
           ],
           courses:[
             [], [],[], [],[],
-            ]
+            ],
         },
         //模拟数据
         data:[
@@ -112,6 +113,7 @@
       };
     },
     created() {
+      this.user=JSON.parse(localStorage.getItem('user'))
       this.createCourseList();
     },
     methods: {
@@ -127,7 +129,13 @@
       },
 
       async createCourseList(){
-          const res= await this.$http.get('courses/')
+        if(this.user.roleName[0]==='学生')
+        {
+          var res= await this.$http.get('courses/getMyCourse/'+this.user.sid)
+        }
+        else if (this.user.roleName[0]==='教师'){
+          var res= await this.$http.get(`courses/?fieldValue=${this.user.sid}&fieldName=teacherId`)
+        }
           const {status,msg,data}=res.data
           let count=0;
           for(let i=0;i<data.length;i++){
@@ -180,7 +188,7 @@
               }
             }
           }
-          console.log(courses)
+          // console.log(courses)
       },
       openMessage(course){
         this.$message.success(course.courseName)
