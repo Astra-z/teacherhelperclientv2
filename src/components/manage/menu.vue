@@ -34,7 +34,7 @@
             <el-option label="专业" value="spec"></el-option>
             <el-option label="学生_导师" value="studentmentor"></el-option>
             <el-option label="用户" value="user"></el-option>
-
+            <el-option label="提醒" value="note"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="权限" :label-width="formLabelWidth">

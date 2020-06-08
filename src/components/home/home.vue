@@ -2,15 +2,15 @@
   <el-container class="container">
     <el-header class="header">
       <el-row>
-      <el-col :span="4">
-        <div class="grid-content bg-purple" >
-          <img src="../../assets/home.jpg" height="60px" alt="logo">
-        </div>
-      </el-col>
-      <el-col :span="18" class="middle">
+      <!--<el-col :span="4">-->
+        <!--<div class="grid-content bg-purple" >-->
+          <!--&lt;!&ndash;<img src="../../assets/home.jpg" height="60px" alt="logo">&ndash;&gt;-->
+        <!--</div>-->
+      <!--</el-col>-->
+      <el-col :span="23" class="middle">
         <h3>老年教师管理系统</h3>
       </el-col>
-      <el-col :span="2">
+      <el-col :span="1">
         <div class="grid-content bg-purple">
           <a class="loginout" @click.prevent="handlerSignout">退出</a>
         </div>
@@ -18,7 +18,7 @@
       </el-row>
     </el-header>
     <el-container>
-      <el-aside class="aside" width="200px" >
+      <el-aside class="aside" width="180px" >
         <!--标签需要用v-bind绑定模式不然console会报错-->
         <el-menu class="aside_menu"
           :unique-opened="true"
@@ -39,9 +39,9 @@
 
       </el-aside>
       <el-main class="main">
-        <el-button
-          @click.prevent="websocketsend"
-          class="form_button" type="primary">websocketsend</el-button>
+        <!--<el-button-->
+          <!--@click.prevent="websocketsend"-->
+          <!--class="form_button" type="primary">websocketsend</el-button>-->
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -88,7 +88,23 @@
           console.log("WebSocket连接发生错误");
         },
         websocketonmessage: function (e) {
-          console.log(e.data);                // console.log(e);
+          const message=JSON.parse(e.data)
+          let data = ['提醒名：'+message.noteName,
+            '备注：'+message.noteName,
+            '时间：'+message.endTime,
+            ];
+          //2.新建newDatas数组
+          let newDatas = [];
+          const h = this.$createElement;
+          //3.通过循环data数组，调用h方法，将每项值传给h,h('标签名',样式,具体内容)
+          for(let i in data){
+            //4.将data数据push进newDatas数组中
+            newDatas.push(h('p',null,data[i]));
+          }
+          this.$notify.info({
+            title: '提醒消息',
+            message: h('div',null, newDatas)
+          });
         },
         websocketclose: function (e) {
           console.log("connection closed (" + e.code + ")");
@@ -160,5 +176,4 @@
     line-height: 60px;
     text-decoration: none;
   }
-
 </style>

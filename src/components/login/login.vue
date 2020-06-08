@@ -8,7 +8,7 @@
         </el-form-item>
         <el-form-item label="密码">
           <!--el-input必须使用keyup.enter.native-->
-          <el-input  v-model="formlogin.password" @keyup.enter.native="loginhandler"></el-input>
+          <el-input  type="password" v-model="formlogin.password" @keyup.enter.native="loginhandler"></el-input>
         </el-form-item>
 
         <el-button

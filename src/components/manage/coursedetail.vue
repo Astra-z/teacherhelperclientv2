@@ -23,7 +23,6 @@
       <el-tab-pane label="课程资料" name="3">
 
       </el-tab-pane>
-
       <el-tab-pane label="课程作业" name="4">
         <div style="margin-bottom: 30px">
           <strong style="font-size: 25px">课程现有作业:</strong>

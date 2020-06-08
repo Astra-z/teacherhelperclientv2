@@ -12,6 +12,7 @@ import College from '../components/manage/college.vue'
 import Course from '../components/manage/course.vue'
 import CourseAdd from '../components/manage/courseadd.vue'
 import CourseDetail from  '../components/manage/coursedetail.vue'
+import Note from  '../components/manage/note.vue'
 
 Vue.use(Router)
 
@@ -66,6 +67,11 @@ export default new Router({
           name:'coursedetail',
           path:'/coursedetail/:courseId',
           component:CourseDetail
+        },
+        {
+          name:'note',
+          path:'/note',
+          component:Note
         },
       ]
     }

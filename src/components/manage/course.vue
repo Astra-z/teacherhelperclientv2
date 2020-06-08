@@ -203,6 +203,7 @@
         const {data, status, msg} = res.data
         if (status === 200) {
           this.courseList = data;
+          console.log(this.courseList)
           this.total = data.length
         }
         else {
