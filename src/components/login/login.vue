@@ -1,8 +1,8 @@
 <template>
     <div class="formLogindiv">
-      <div class="topbar">上海大学计算机学院老年教师工作提醒簿平台V2.0.1</div>
+
       <el-form class="formLogin" label-position="top" label-width="80px" :model="formlogin">
-        <h2 style="text-align: center;font-size:22px;">用户登录</h2>
+        <h2 style="text-align: center">用户登录</h2>
         <el-form-item label="用户名">
           <el-input v-model="formlogin.username"></el-input>
         </el-form-item>
@@ -15,9 +15,6 @@
           @click.prevent="loginhandler"
           class="form_button" type="primary">登录</el-button>
       </el-form>
-      <div class="footer">
-        <div>Copyright © 2020 All Rights Reserved Powered By Group Three</div>
-      </div>
     </div>
 
 </template>
@@ -91,54 +88,23 @@
     */
     height: 100%;
     background-image: url("/static/img/login-bg.jpg");
-    background-size: cover;
-    background-repeat: no-repeat;
+    opacity: 0.8;
+    background-size: 100%;
 
     /*弹性盒子布局：flex
     just水平居中
     align垂直居中*/
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
   }
   .formLogindiv .formLogin{
-    background-color: rgba(255, 255, 255, 0.8);
-    width: 280px;
-    padding: 0 40px 30px 40px;
+    background-color: white;
+    width: 400px;
+    padding: 40px;
     border-radius: 5px;
-    margin-left: 20px;
   }
   .form_button{
     width: 100%;
   }
-  .topbar {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 9;
-    background: url("/static/img/headerbg.jpg") repeat-x;
-    height: 95px;
-    line-height: 95px;
-    text-align: center;
-    font-family: cursive;
-    color: #fff;
-    font-size: 24px;
-  }
-  .footer {
-    font-size: 12px;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: url("/static/img/footerbg.jpg") repeat-x;
-    height: 50px;
-    text-align: center;
-    line-height: 50px;
-    color: #fff;
-  }
-  .el-button--primary {
-    color: #FFF;
-    background-color: #275085;
-    border-color: #275085;
-    opacity: 1;
-}
 </style>
