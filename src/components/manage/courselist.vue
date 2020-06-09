@@ -129,6 +129,15 @@
       },
 
       async createCourseList(){
+        //初始化classTableData
+        let courses=this.classTableData.courses
+        for(let i=0 ;i< 5; i++) {
+          for (let j = 0; j < 8; j++) {
+            courses[i].push({})
+            courses[i][j].courseDisplay = true
+          }
+        }
+
         if(this.user.roleName[0]==='学生')
         {
           var res= await this.$http.get('courses/getMyCourse/'+this.user.sid)
@@ -136,59 +145,54 @@
         else if (this.user.roleName[0]==='教师'){
           var res= await this.$http.get(`courses/?fieldValue=${this.user.sid}&fieldName=teacherId`)
         }
-          const {status,msg,data}=res.data
-          let count=0;
-          for(let i=0;i<data.length;i++){
-            if (data[i].courseTimeList.length>0){
-              for (let j = 0; j < data[i].courseTimeList.length; j++) {
-                //!!!!vue对直接赋值数组的操作不会监听，因此如果写成this.data[count]={}会发生
-                //数据改变了但是vue不进行渲染的情况
-                this.data.push({})
-                this.data[count].courseId=data[i].courseId
-                this.data[count].weekday=data[i].courseTimeList[j].weekday
-                this.data[count].courseStartTime=data[i].courseTimeList[j].startLesson
-                this.data[count].courseEndTime=data[i].courseTimeList[j].endLesson
-                this.data[count].courseName=data[i].courseName
-                this.data[count].courseAddress=data[i].courseAddress
-                this.data[count].courseTeacher=data[i].courseTeacher
-                count++;
-              }
-            }
-          }
-          console.log(this.data)
-          //初始化classTableData
-          let courses=this.classTableData.courses
-          for(let i=0 ;i< 5; i++) {
-            for (let j = 0; j < 8; j++) {
-              courses[i].push({})
-              courses[i][j].courseDisplay = true
-            }
-          }
-          //放入后台传的数据
-          for(let i=0;i<this.data.length;i++) {
-            if (this.data[i] != null) {
-              let n = this.data[i].courseStartTime, m = this.data[i].weekday;
-              this.classTableData.courses[m][n] = this.data[i]
-            }
-          }
 
-          //合并单元格
-          for(let i=0;i<courses.length;i++){
-            for(let j=0;j<courses[i].length;j++){
-              if(courses[i][j].hasOwnProperty('courseStartTime')){
-                courses[i][j].courseSpan=courses[i][j].courseEndTime-courses[i][j].courseStartTime+1
-                courses[i][j].courseDisplay=true;
-                let k=courses[i][j].courseSpan
-                for(let m=j+1;m<j+k;m++){
-                  courses[i][m]={}
-                  courses[i][m].courseSpan=1
-                  courses[i][m].courseDisplay=false
-                }
-                j=j+k-1;//跳过已经不显示的单元格
-              }
+        const {status,msg,data}=res.data
+        if(status!==200)
+          return;
+        let count=0;
+        for(let i=0;i<data.length;i++){
+          if (data[i].courseTimeList.length>0){
+            for (let j = 0; j < data[i].courseTimeList.length; j++) {
+              //!!!!vue对直接赋值数组的操作不会监听，因此如果写成this.data[count]={}会发生
+              //数据改变了但是vue不进行渲染的情况
+              this.data.push({})
+              this.data[count].courseId=data[i].courseId
+              this.data[count].weekday=data[i].courseTimeList[j].weekday
+              this.data[count].courseStartTime=data[i].courseTimeList[j].startLesson
+              this.data[count].courseEndTime=data[i].courseTimeList[j].endLesson
+              this.data[count].courseName=data[i].courseName
+              this.data[count].courseAddress=data[i].courseAddress
+              this.data[count].courseTeacher=data[i].courseTeacher
+              count++;
             }
           }
-          // console.log(courses)
+        }
+
+        //放入后台传的数据
+        for(let i=0;i<this.data.length;i++) {
+          if (this.data[i] != null) {
+            let n = this.data[i].courseStartTime, m = this.data[i].weekday;
+            this.classTableData.courses[m][n] = this.data[i]
+          }
+        }
+
+        //合并单元格
+        for(let i=0;i<courses.length;i++){
+          for(let j=0;j<courses[i].length;j++){
+            if(courses[i][j].hasOwnProperty('courseStartTime')){
+              courses[i][j].courseSpan=courses[i][j].courseEndTime-courses[i][j].courseStartTime+1
+              courses[i][j].courseDisplay=true;
+              let k=courses[i][j].courseSpan
+              for(let m=j+1;m<j+k;m++){
+                courses[i][m]={}
+                courses[i][m].courseSpan=1
+                courses[i][m].courseDisplay=false
+              }
+              j=j+k-1;//跳过已经不显示的单元格
+            }
+          }
+        }
+        // console.log(courses)
       },
       openMessage(course){
         this.$message.success(course.courseName)

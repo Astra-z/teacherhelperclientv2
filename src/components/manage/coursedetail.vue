@@ -160,7 +160,7 @@
         },
         //点击文件
         handlePreview(file) {
-          console.log(file);
+          window.open(`http://127.0.0.1:8888/v1/coursehomeworks/filesdownloads?fileName=${file.name}&courseHomeworkId=${file.courseHomeworkId}&courseId=${this.myCourse.courseId}`)
         },
         //标签页点击事件
         async handleClick(){
@@ -197,7 +197,8 @@
             this.fileList=[]
             if(courseNameList!=null){
               for(let i=0;i<courseNameList.length;i++){
-                this.fileList.push({name:courseNameList[i]})
+                this.fileList.push({name:courseNameList[i],
+                                    courseHomeworkId:courseHomeworkId})
               }
             }
           }

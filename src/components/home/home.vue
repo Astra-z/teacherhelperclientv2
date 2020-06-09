@@ -49,6 +49,7 @@
 </template>
 
 <script>
+    import moment from 'moment'
     export default {
         //获取token
         //if token 继续渲染
@@ -59,6 +60,7 @@
           user: [],
           menus: [],
           defaultclass: "el-icon-location",
+          websock:{},
         }
       },
       beforeCreate(){
@@ -83,28 +85,43 @@
         },
         websocketonopen: function () {
           console.log("WebSocket连接成功");
+          this.websocketsend();
         },
         websocketonerror: function (e) {
           console.log("WebSocket连接发生错误");
         },
         websocketonmessage: function (e) {
+          console.log(e)
           const message=JSON.parse(e.data)
-          let data = ['提醒名：'+message.noteName,
-            '备注：'+message.noteName,
-            '时间：'+message.endTime,
+          for (let i = 0; i <message.length ; i++) {
+            let remark
+            if(message[i].hasOwnProperty('remark'))
+              remark=message[i].remark;
+            else
+              remark="无"
+            let now=new Date().getTime()
+            let Time=moment(message[i].endTime).format('YYYY-MM-DD HH:mm:ss')
+            let note=''
+            if(now-message[i].endTime>=0)
+              note='(已过期)'
+            let data = ['提醒名：'+message[i].noteName,
+              '备注：'+remark,
+              '开始时间：'+Time,
             ];
-          //2.新建newDatas数组
-          let newDatas = [];
-          const h = this.$createElement;
-          //3.通过循环data数组，调用h方法，将每项值传给h,h('标签名',样式,具体内容)
-          for(let i in data){
-            //4.将data数据push进newDatas数组中
-            newDatas.push(h('p',null,data[i]));
+            //2.新建newDatas数组
+            let newDatas = [];
+            const h = this.$createElement;
+            //3.通过循环data数组，调用h方法，将每项值传给h,h('标签名',样式,具体内容)
+            for(let i in data){
+              //4.将data数据push进newDatas数组中
+              newDatas.push(h('p',null,data[i]));
+            }
+            this.$notify.info({
+              title: '提醒消息'+note,
+              message: h('div',null, newDatas),
+              duration: 0
+            });
           }
-          this.$notify.info({
-            title: '提醒消息',
-            message: h('div',null, newDatas)
-          });
         },
         websocketclose: function (e) {
           console.log("connection closed (" + e.code + ")");
@@ -114,7 +131,8 @@
           await this.$http.get(`webSocketSend/?userId=${this.user.userId}`)
         },
 
-        handlerSignout(){
+        async handlerSignout(){
+          this.websock.close()
           localStorage.clear()
           this.$message.success("退出成功")
           this.$router.push({name:'login'})

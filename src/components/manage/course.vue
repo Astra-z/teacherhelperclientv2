@@ -203,7 +203,8 @@
         const {data, status, msg} = res.data
         if (status === 200) {
           this.courseList = data;
-          console.log(this.courseList)
+          // this.courseList.speDOdata=JSON.stringify(this.courseList.specDO)
+          console.log(data)
           this.total = data.length
         }
         else {
@@ -237,24 +238,13 @@
       //打开更新对话框
       async openUpdateCourseForm(course){
         this.updatedialogFormVisible=true;
-        //选中的menus传到对话框
+        // 选中的menus传到对话框
+        const data=course.specDO
         this.updateform=course;
-        this.updateform.specName=course.specDO.spceName;
+        this.updateform.specName=data.specName
         console.log(this.updateform)
-        //查找菜单
-        const res = await this.$http.get(`menus/getAllMenus`)
-        const {data: {children}, status, msg} = res.data
-        if (status === 200) {
-          this.menudata = children;
-        }
-        else {
-          this.$message.error(msg)
-        }
-        //获得选中树形菜单
-
-        this.defaultcheckList=course.menuIdList//清空数组
-        this.$refs.DeviceGroupTree.setCheckedKeys(this.defaultcheckList);
-        console.log(this.updateform)
+        // 查找菜单
+        // console.log(this.updateform)
       },
       //更新course
       async updateCourse() {

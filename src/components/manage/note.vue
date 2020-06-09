@@ -163,7 +163,7 @@
         // pagenum	当前页码	不能为空
         // pagesize	每页显示条数	不能为空
         const res = await this.$http
-          .get(`notes/?page=${this.pagenum}&limit=${this.pagesize}`)
+          .get(`notes/?fieldValue=${this.user.userId}&fieldName=userId`)
         console.log(res)
         const {data, status, msg} = res.data
         if (status === 200) {

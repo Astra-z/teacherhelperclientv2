@@ -21,6 +21,7 @@
 
 <script>
     export default {
+
         name: "login",
         //Componet组件传递数据需要用data()函数return对象
         data(){
