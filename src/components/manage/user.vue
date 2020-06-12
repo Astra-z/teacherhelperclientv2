@@ -14,7 +14,9 @@
           <el-input placeholder="请输入内容" v-model="query" class="input-with-select">
             <el-button slot="append" icon="el-icon-search"></el-button>
           </el-input>
-          <el-button type="success" plain>添加</el-button>
+          <el-button
+            @click="openInsertUserForm"
+            type="success" plain>添加</el-button>
         </el-col>
       </el-row>
 
@@ -45,22 +47,21 @@
           prop="roleName"
           label="角色">
         </el-table-column>
-        <el-table-column
-          label="创建时间"
-          width="200">
-          <!--
-          1.单元格中显示内容不是字符串需要给内容套上一个template
-          2.每个组件都拥有一个独立的变量域，
-          内层的template要使用外层的数据需要使用slot-scope指定数据源
-          3.{{userList.row.create_time|fmtdate}}使用插值表达式
-          4.row绑定的是数组中的每个对象
-          5.slot-scope="userList"会自动找上级的数据源，因此写啥都行
-          -->
-
-          <template slot-scope="userList">
-            {{userList.row.create_time|fmtdate}}
-          </template>
-        </el-table-column>
+        <!--<el-table-column-->
+          <!--label="创建时间"-->
+          <!--width="200">-->
+          <!--&lt;!&ndash;-->
+          <!--1.单元格中显示内容不是字符串需要给内容套上一个template-->
+          <!--2.每个组件都拥有一个独立的变量域，-->
+          <!--内层的template要使用外层的数据需要使用slot-scope指定数据源-->
+          <!--3.{{userList.row.create_time|fmtdate}}使用插值表达式-->
+          <!--4.row绑定的是数组中的每个对象-->
+          <!--5.slot-scope="userList"会自动找上级的数据源，因此写啥都行-->
+          <!--&ndash;&gt;-->
+          <!--<template slot-scope="userList">-->
+            <!--{{userList.row.createTime|fmtdate}}-->
+          <!--</template>-->
+        <!--</el-table-column>-->
         <el-table-column
           prop="msg_sate"
           label="用户状态">
@@ -76,12 +77,75 @@
         <el-table-column
           label="操作">
           <template slot-scope="userList">
-            <el-button size="mini" :plain="true" type="primary" icon="el-icon-edit" circle></el-button>
-            <el-button size="mini" :plain="true" type="success" icon="el-icon-check" circle></el-button>
+            <el-button size="mini"
+                       @click="openUpdateUserForm(userList.row)"
+                       :plain="true" type="primary" icon="el-icon-edit" circle></el-button>
             <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
           </template>
         </el-table-column>
       </el-table>
+      <!--添加角色对话框-->
+      <el-dialog title="添加角色" :visible.sync="insertdialogFormVisible">
+        <el-form :model="insertform">
+          <el-form-item label="用户名" :label-width="formLabelWidth">
+            <el-input v-model="insertform.username" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="真实姓名" :label-width="formLabelWidth">
+            <el-input v-model="insertform.realname" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="菜单权限" :label-width="formLabelWidth">
+            <el-tree
+              :data="roledata"
+              show-checkbox
+              :default-expand-all="false"
+              node-key="id"
+              ref="DeviceGroupTree"
+              :highlight-current="true"
+              :check-strictly="true"
+              :default-checked-keys="defaultcheckList"
+              @check="checkGroupNode()"
+              :props="{label: 'roleName'}">
+            </el-tree>
+          </el-form-item>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="insertdialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="insertUser()">确 定</el-button>
+        </div>
+      </el-dialog>
+
+
+      <!--更新角色对话框-->
+      <el-dialog title="更新角色" :visible.sync="updatedialogFormVisible">
+        <el-form :model="updateform">
+          <el-form-item label="用户名" :label-width="formLabelWidth">
+            <el-input v-model="updateform.username" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="真实姓名" :label-width="formLabelWidth">
+            <el-input v-model="updateform.realname" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="角色分配" :label-width="formLabelWidth">
+            <el-tree
+              :data="roledata"
+              show-checkbox
+              :default-expand-all="false"
+              node-key="roleName"
+              ref="DeviceGroupTree"
+              :highlight-current="true"
+              :check-strictly="true"
+              @check="checkGroupNode()"
+              :props="{label: 'roleName'}">
+            </el-tree>
+            <!--<el-input v-model="form.roleParentId" autocomplete="off"></el-input>-->
+          </el-form-item>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="updatedialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="updateUser()">确 定</el-button>
+        </div>
+      </el-dialog>
     </el-card>
   <!--4.分页-->
 </template>
@@ -95,12 +159,25 @@
           userList: [],
           total:-1,
           pagenum:1,
-          pagesize:5,
+          pagesize:100,
+
+          user:{},
 
           lock:true,
+
+          //对话框属性
+          updatedialogFormVisible: false,
+          insertdialogFormVisible: false,
+          formLabelWidth: '120px',
+          insertform: {},
+          updateform: {},
+          roledata: [],
+          //树默认选中节点
+          defaultcheckList:[],
         }
       },
       created(){
+        this.user=JSON.parse(localStorage.getItem('user'))
         this.getUserList();
       },
       methods:{
@@ -123,7 +200,89 @@
               this.lock=false;
             else
               this.lock=true;
-        }
+        },
+        //打开添加role对话框
+        async openInsertUserForm() {
+          this.insertdialogFormVisible = true;
+          const res = await this.$http.get(`roles/`)
+          const {data, status, msg} = res.data
+          if (status === 200) {
+            this.roledata = data;
+            // console.log(this.roledata);
+          }
+          else {
+            this.$message.error(msg)
+          }
+        },
+        //添加role
+        async insertUser() {
+          this.insertform.roleIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
+          if (this.insertform.roleIdList.length <= 0) {
+            this.$message.error("至少选择一个权限！")
+            return;
+          }
+          const res = await this.$http.post('roles/', this.insertform);
+          const {status, msg} = res.data
+          if (status === 200) {
+            this.$message.success("添加成功!")
+            this.getUserList();
+            this.insertform = {}
+          }
+          else {
+            this.$message.error("添加失败!")
+          }
+          this.insertdialogFormVisible = false;
+        },
+        //打开更新对话框
+        async openUpdateUserForm(user){
+          this.updatedialogFormVisible=true;
+          //选中的roles传到对话框
+          this.updateform=user;
+          //查找角色
+          const res = await this.$http.get(`roles/`)
+          const {data, status, msg} = res.data
+          if (status === 200) {
+            this.roledata = data;
+          }
+          else {
+            this.$message.error(msg)
+          }
+          //获得选中树形菜单
+          this.defaultcheckList=user.roleName
+          this.$refs.DeviceGroupTree.setCheckedKeys(this.defaultcheckList);
+
+        },
+        //查找选中节点
+        // findAllChildren(data, arr) {
+        //   data.forEach((item, index) => {
+        //     if(item.children.length !== 0) {
+        //       this.findAllChildren(item.children, arr);
+        //     }
+        //     if(item.id!=0){//去除根节点
+        //       arr.push(item.id);
+        //     }
+        //   })
+        // },
+        //更新role
+        async updateUser() {
+          this.updatedialogFormVisible = false;
+          this.updateform.roleIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
+          if (this.updateform.roleIdList.length <= 0) {
+            this.$message.error("至少选择一个权限！")
+            return;
+          }
+          const res = await this.$http.patch('roles/'+this.updateform.roleId, this.updateform);
+          const {status, msg} = res.data
+          if (status === 200) {
+            this.$message.success("更新成功!")
+            this.getUserList();
+            this.updateform = {}
+          }
+          else {
+            this.$message.error("更新失败!")
+          }
+        },
+        checkGroupNode(){},
       }
     }
 </script>

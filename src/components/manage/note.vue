@@ -103,20 +103,6 @@
         <el-form-item label="提醒描述" :label-width="formLabelWidth">
           <el-input v-model="updateform.remark" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="菜单权限" :label-width="formLabelWidth">
-          <el-tree
-            :data="menudata"
-            show-checkbox
-            :default-expand-all="false"
-            node-key="id"
-            ref="DeviceGroupTree"
-            :highlight-current="true"
-            :check-strictly="true"
-            @check="checkGroupNode()"
-            :props="{children: 'children',label: 'text'}">
-          </el-tree>
-          <!--<el-input v-model="form.menuParentId" autocomplete="off"></el-input>-->
-        </el-form-item>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
@@ -204,19 +190,7 @@
         this.updatedialogFormVisible=true;
         //选中的menus传到对话框
         this.updateform=note;
-        //查找菜单
-        const res = await this.$http.get(`menus/getAllMenus`)
-        const {data: {children}, status, msg} = res.data
-        if (status === 200) {
-          this.menudata = children;
-        }
-        else {
-          this.$message.error(msg)
-        }
-        //获得选中树形菜单
-        this.defaultcheckList=note.menuIdList//清空数组
-        this.$refs.DeviceGroupTree.setCheckedKeys(this.defaultcheckList);
-        console.log(this.updateform)
+
       },
       //查找选中节点
       // findAllChildren(data, arr) {
@@ -247,7 +221,6 @@
         else {
           this.$message.error("更新失败!")
         }
-
       },
       //复选框单选（待做）
       checkGroupNode() {

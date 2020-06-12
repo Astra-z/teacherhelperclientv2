@@ -188,6 +188,11 @@
           this.$message.error("最多添加一个父节点！")
           return
         }
+        else if(this.$refs.DeviceGroupTree.getCheckedKeys()[0]===this.updateform.id){
+          this.$message.error("父节点不能是自己！")
+          return
+        }
+
         var data={}
         data.menuName = this.updateform.text
         data.url=this.updateform.url

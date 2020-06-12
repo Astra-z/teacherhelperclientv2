@@ -222,7 +222,7 @@
 
         this.defaultcheckList=role.menuIdList//清空数组
         this.$refs.DeviceGroupTree.setCheckedKeys(this.defaultcheckList);
-        console.log(this.updateform)
+        // console.log(this.updateform)
       },
       //查找选中节点
       // findAllChildren(data, arr) {

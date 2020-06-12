@@ -26,9 +26,11 @@
       <el-tab-pane label="课程作业" name="4">
         <div style="margin-bottom: 30px">
           <strong style="font-size: 25px">课程现有作业:</strong>
-          <el-button style="float: right"
-                     type="success" plain size="small"
-                     @click="openInsertHomeworkForm()">添加</el-button><br>
+          <el-button
+            v-if="user.roleName[0]==='教师'"
+            style="float: right"
+           type="success" plain size="small"
+           @click="openInsertHomeworkForm()">添加</el-button><br>
         </div>
         <el-collapse v-model="homeworkActiveName" accordion>
           <el-collapse-item
@@ -92,9 +94,6 @@
           activeName:'1',
           homeworkActiveName:'',
           fileList: [
-            {
-              name:'123',
-            }
           ],
           courseHomeworkList:[],
           //已经点过的id
@@ -223,7 +222,6 @@
           const {status,msg,data}=res.data;
           if(status===200){
             this.$message.success("添加作业成功")
-            this.console.log(data)
           }
           else{
             this.$message.error("添加作业失败")

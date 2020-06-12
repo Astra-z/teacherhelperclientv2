@@ -52,7 +52,8 @@
                 <!-- @blur失去焦点，enter触发会执行blur所以会执行两次，用$event.target.blur防止执行两次-->
               </el-input>
               <el-button v-else class="button-new-tag" size="small"
-                         @click="showSpecInsertInput">+ New Tag</el-button>
+                         icon="el-icon-circle-plus-outline"
+                         @click="showSpecInsertInput">专业</el-button>
 
             </el-col>
           </el-row>
@@ -209,16 +210,17 @@
       //更新college
       async updatecollege() {
         this.updatedialogFormVisible = false;
+        delete this.updateform.specList
         const res = await this.$http.patch('colleges/'+this.updateform.collegeId, this.updateform);
         const {status, msg} = res.data
         if (status === 200) {
           this.$message.success("更新成功!")
-          this.getcollegeList();
-          this.updateform = {}
         }
         else {
           this.$message.error("更新失败!")
         }
+        this.getcollegeList();
+        this.updateform = {}
       },
       async openDeletecollegeForm(Id) {
         this.deletedialogFormVisible = true;
@@ -253,9 +255,7 @@
             else {
               this.$message.error(msg)
             }
-          }
-        )
-
+          })
       },
       //显示添加专业标签
       showSpecInsertInput(){

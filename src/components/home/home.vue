@@ -102,7 +102,7 @@
             let now=new Date().getTime()
             let Time=moment(message[i].endTime).format('YYYY-MM-DD HH:mm:ss')
             let note=''
-            if(now-message[i].endTime>=0)
+            if(now-message[i].endTime>6000)
               note='(已过期)'
             let data = ['提醒名：'+message[i].noteName,
               '备注：'+remark,

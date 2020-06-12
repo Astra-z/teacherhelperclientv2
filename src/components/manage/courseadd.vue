@@ -69,12 +69,20 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item label="任课老师">
-            <el-input v-model="form.teacherName"></el-input>
+          <el-form-item label="教师工号">
+            <el-input v-model="form.teacherId"></el-input>
+          </el-form-item>
+
+          <el-form-item label="教师姓名">
+            <el-input v-model="form.courseTeacher"></el-input>
           </el-form-item>
 
           <el-form-item label="上课地点">
             <el-input v-model="form.courseAddress"></el-input>
+          </el-form-item>
+
+          <el-form-item label="最大人数">
+            <el-input v-model="form.maxNum"></el-input>
           </el-form-item>
 
           <el-form-item label="课程备注">
@@ -172,14 +180,15 @@
             region: '春季学期',
             startYearValue: '2020',
             endYearValue:'2021',
-            teacherName:'',
+            teacherId:'',
             remark: '',
             courseTerm: '',
             courseAddress:'',
+            maxNum:50,
           },
 
           freform:{
-            weekday: '',
+            weekday: '0',
             courseStartTime: '',
             endLesson:'0',
             startLesson:'0',
@@ -255,10 +264,13 @@
             var coursedata={
               courseName: this.form.name,
               term: this.form.startYearValue+'-'+this.form.endYearValue+'学年'+this.form.region,
-              courseTeacher: this.form.teacherName,
+              teacherId: this.form.teacherId,
               specId: this.specIDValue[1],
               remark: this.form.remark,
+              courseTeacher: this.form.courseTeacher,
               courseAddress: this.form.courseAddress,
+              maxNum:this.form.maxNum,
+              studentNum:0,
               courseTimeList: courseTimeList
             }
             const res=await this.$http.post('courses/',coursedata)

@@ -120,14 +120,54 @@
 
 
     <!--更新课程对话框-->
+    <!--<el-dialog title="更新课程" :visible.sync="updatedialogFormVisible">-->
+      <!--<el-form :model="updateform">-->
+        <!--<el-form-item label="课程名" :label-width="formLabelWidth">-->
+          <!--<el-input v-model="updateform.courseName" autocomplete="off"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="专业" :label-width="formLabelWidth">-->
+          <!--<el-input v-model="updateform.specName" autocomplete="off"></el-input>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="updatedialogFormVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="updateCourse()">确 定</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
     <el-dialog title="更新课程" :visible.sync="updatedialogFormVisible">
       <el-form :model="updateform">
         <el-form-item label="课程名" :label-width="formLabelWidth">
-          <el-input v-model="updateform.courseName" autocomplete="off"></el-input>
+          <el-input v-model="updateform.courseName" autocomplete="off" disabled="disabled"></el-input>
         </el-form-item>
+
+
         <el-form-item label="专业" :label-width="formLabelWidth">
-          <el-input v-model="updateform.specName" autocomplete="off"></el-input>
+        <el-input v-model="updateform.specName" autocomplete="on"></el-input>
         </el-form-item>
+
+        <el-form-item label="任课教师" :label-width="formLabelWidth">
+          <el-input v-model="updateform.courseTeacher" autocomplete="on"></el-input>
+        </el-form-item>
+
+        <el-form-item label="最大人数" :label-width="formLabelWidth">
+          <el-input v-model="updateform.maxNum" autocomplete="off"></el-input>
+        </el-form-item>
+
+
+        <!--<el-form-item label="学期" :label-width="formLabelWidth">-->
+        <!--<el-input v-model="updateform.specName" autocomplete="off"></el-input>-->
+        <!--</el-form-item>-->
+
+
+        <el-form-item label="上课地点" :label-width="formLabelWidth">
+          <el-input v-model="updateform.courseAddress" autocomplete="off"></el-input>
+        </el-form-item>
+
+
+        <el-form-item label="备注" :label-width="formLabelWidth">
+          <el-input v-model="updateform.remark" autocomplete="off"></el-input>
+        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="updatedialogFormVisible = false">取 消</el-button>
@@ -278,11 +318,12 @@
         }
       },
       openInfoCourseForm(course){
+        let remark
         let data = ['课程名：'+course.courseName,
                     '学期：'+course.term,
                     '任课老师：'+course.courseTeacher,
                     '上课地点：'+course.courseAddress,
-                    '备注：'+course.remark,];
+                    '备注：'+(course.remark||'无'),];
         //2.新建newDatas数组
         let newDatas = [];
         const h = this.$createElement;
