@@ -16,6 +16,7 @@
       <el-button class="input_button" slot="append" icon="el-icon-search" size="mini"></el-button>
     </el-input>
     <el-button type="success" plain @click="openInsertNoteForm()">添加</el-button>
+    <el-button type="success" plain @click="openInsertNoteForm()">添加课程提醒</el-button>
     <!--3.表格-->
     <el-table
       :data="noteList"
@@ -99,10 +100,15 @@
         <el-form-item label="提醒描述" :label-width="formLabelWidth">
           <el-input v-model="insertform.remark" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="提醒类型" :label-width="formLabelWidth">
+          <el-select v-model="insertform.noteType" placeholder="请选择权限类型">
+            <el-option label="每周" value="1"></el-option>
+            <el-option label="仅一次" value="2"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="提醒时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="insertform.endTime"
-            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetime"
             placeholder="选择日期时间"
             align="right">
@@ -169,7 +175,9 @@
         updatedialogFormVisible: false,
         insertdialogFormVisible: false,
         formLabelWidth: '120px',
-        insertform: {},
+        insertform: {
+          noteType:'2'
+        },
         updateform: {},
         menudata: [],
         //树默认选中节点
@@ -230,6 +238,7 @@
       async insertNote() {
         this.insertform.startTime=new Date();
         this.insertform.userId=this.user.userId
+        this.insertform.noteSwitch=true
         if(this.insertform.endTime.getTime()-this.insertform.startTime<=0){
           this.$message.error("提醒时间不能小于等于当前时间！")
           return
@@ -240,7 +249,6 @@
         if (status === 200) {
           this.$message.success("添加成功!")
           this.getNoteList();
-          this.insertform = {}
         }
         else {
           this.$message.error("添加失败!")
@@ -264,7 +272,6 @@
           this.$message.error("提醒时间不能小于等于当前时间！")
           return
         }
-        this.updateform.endTime=new Date();
         const res = await this.$http.patch('notes/'+this.updateform.noteId, this.updateform);
         const {status, msg} = res.data
         if (status === 200) {
