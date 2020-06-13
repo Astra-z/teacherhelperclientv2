@@ -42,7 +42,7 @@
         <!--<el-button-->
           <!--@click.prevent="websocketsend"-->
           <!--class="form_button" type="primary">websocketsend</el-button>-->
-        <router-view></router-view>
+        <router-view v-if="isRouterAlive"></router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -50,7 +50,13 @@
 
 <script>
     import moment from 'moment'
+    import Note from '../manage/note.vue'
     export default {
+      provide() {
+        return {
+          reload: this.reload
+        };
+      },
         //获取token
         //if token 继续渲染
         //token 跳到登录
@@ -61,6 +67,7 @@
           menus: [],
           defaultclass: "el-icon-location",
           websock:{},
+          isRouterAlive: true
         }
       },
       beforeCreate(){
@@ -121,6 +128,7 @@
               message: h('div',null, newDatas),
               duration: 0
             });
+            this.reload();
           }
         },
         websocketclose: function (e) {
@@ -142,7 +150,7 @@
           const username=JSON.parse(localStorage.getItem('user')).username
           const res=await this.$http.get(`/menus/getUserMenus?username=`+username);
           this.menus=res.data.data.children;
-          console.log(this.menus)
+          // console.log(this.menus)
           // this.sortMenus(this.menus);
         },
         //排序菜单
@@ -157,6 +165,14 @@
         //   }
         //   this.menus=[].concat(newarr)
         // }
+        //刷新路由
+        reload() {
+          this.isRouterAlive = false;
+          this.$nextTick(function() {
+            this.isRouterAlive = true;
+          });
+        },
+
       }
     }
 </script>

@@ -21,31 +21,53 @@
       :data="noteList"
       style="width: 100%">
       <el-table-column
-        prop="noteId"
+        type="index"
         label="#"
         width="40">
       </el-table-column>
       <el-table-column
         prop="noteName"
         label="提醒名"
-        width="200">
+        width="120">
       </el-table-column>
       <el-table-column
         prop="remark"
-        label="描述"
-      >
+        label="描述">
       </el-table-column>
       <el-table-column
-        label="创建时间">
-        <template slot-scope="noteList">
-          {{noteList.row.startTime|fmtdate}}
+        label="类型"
+        width="120">
+        <template slot-scope="scope">
+          <el-select v-model="scope.row.noteType+''" disabled placeholder="请选择">
+            <el-option label="每周" value="1"></el-option>
+            <el-option label="仅一次" value="2"></el-option>
+          </el-select>
         </template>
       </el-table-column>
-
       <el-table-column
         label="预定提醒时间">
         <template slot-scope="noteList">
           {{noteList.row.endTime|fmtdate}}
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="星期">
+        <template slot-scope="noteList">
+          {{"星期"+"日一二三四五六".charAt(new Date(noteList.row.endTime).getDay())}}
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="提醒开关"
+        width="80">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.noteSwitch"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="changeNoteSwitch(scope.row)">
+          </el-switch>
         </template>
       </el-table-column>
 
@@ -80,6 +102,7 @@
         <el-form-item label="提醒时间" :label-width="formLabelWidth">
           <el-date-picker
             v-model="insertform.endTime"
+            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetime"
             placeholder="选择日期时间"
             align="right">
@@ -103,6 +126,20 @@
         <el-form-item label="提醒描述" :label-width="formLabelWidth">
           <el-input v-model="updateform.remark" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="提醒类型" :label-width="formLabelWidth">
+          <el-select v-model="updateform.noteType+''" placeholder="请选择权限类型">
+            <el-option label="每周" value="1"></el-option>
+            <el-option label="仅一次" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="提醒时间" :label-width="formLabelWidth">
+          <el-date-picker
+            v-model="updateform.endTime"
+            type="datetime"
+            placeholder="选择日期时间"
+            align="right">
+          </el-date-picker>
+        </el-form-item>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
@@ -115,7 +152,9 @@
 
 <script>
   export default {
+
     name: "note",
+    inject: ['reload'],
     data() {
       return {
         query: "",
@@ -143,6 +182,29 @@
       this.getNoteList();
     },
     methods: {
+
+       //改变开关
+      async changeNoteSwitch(note){
+        let startTime=new Date().getTime();
+        let endTime=new Date(note.endTime).getTime();
+        if(endTime-startTime<=0){
+          this.$message.error("提醒时间不能小于当前时间")
+          note.noteSwitch=false
+          return
+        }
+        var data={
+          noteId:note.noteId,
+          noteSwitch:note.noteSwitch,
+        }
+        const res = await this.$http.patch('notes/'+note.noteId,data)
+        const {status,msg}=res.data
+        if(status===200){
+          this.$message.success("修改提醒状态成功");
+        }
+        else{
+          this.$message.error("修改失败");
+        }
+      },
       //获取note列表
       async getNoteList() {
         // query	查询参数	可以为空
@@ -192,25 +254,17 @@
         this.updateform=note;
 
       },
-      //查找选中节点
-      // findAllChildren(data, arr) {
-      //   data.forEach((item, index) => {
-      //     if(item.children.length !== 0) {
-      //       this.findAllChildren(item.children, arr);
-      //     }
-      //     if(item.id!=0){//去除根节点
-      //       arr.push(item.id);
-      //     }
-      //   })
-      // },
       //更新note
       async updateNote() {
-        this.updatedialogFormVisible = false;
-        this.updateform.menuIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
-        if (this.updateform.menuIdList.length <= 0) {
-          this.$message.error("至少选择一个权限！")
-          return;
+        console.log(this.updateform)
+        let startTime=new Date().getTime();
+        let endTime=new Date(this.updateform.endTime).getTime()
+        this.updateform.userId=this.user.userId
+        if(endTime-startTime<=0){
+          this.$message.error("提醒时间不能小于等于当前时间！")
+          return
         }
+        this.updateform.endTime=new Date();
         const res = await this.$http.patch('notes/'+this.updateform.noteId, this.updateform);
         const {status, msg} = res.data
         if (status === 200) {
@@ -221,6 +275,7 @@
         else {
           this.$message.error("更新失败!")
         }
+        this.updatedialogFormVisible=false
       },
       //复选框单选（待做）
       checkGroupNode() {
