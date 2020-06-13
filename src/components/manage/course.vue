@@ -142,8 +142,9 @@
 
 
         <el-form-item label="专业" :label-width="formLabelWidth">
-        <el-input v-model="updateform.specName" autocomplete="on"></el-input>
+          <el-input v-model="updateform.specDO.specName" autocomplete="on" disabled="disabled"></el-input>
         </el-form-item>
+
 
         <el-form-item label="任课教师" :label-width="formLabelWidth">
           <el-input v-model="updateform.courseTeacher" autocomplete="on"></el-input>
@@ -155,7 +156,7 @@
 
 
         <!--<el-form-item label="学期" :label-width="formLabelWidth">-->
-        <!--<el-input v-model="updateform.specName" autocomplete="off"></el-input>-->
+        <!--<el-input v-model="specDO.specName" autocomplete="off"></el-input>-->
         <!--</el-form-item>-->
 
 
@@ -198,7 +199,7 @@
         insertdialogFormVisible: false,
         formLabelWidth: '120px',
         insertform: {},
-        updateform: {},
+        updateform: {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""},
         menudata: [],
         //树默认选中节点
         defaultcheckList:[],
@@ -289,7 +290,14 @@
       //更新course
       async updateCourse() {
         this.updatedialogFormVisible = false;
-        const res = await this.$http.patch('courses/'+this.updateform.courseId, this.updateform);
+        let updateMsg=this.updateform;
+        delete updateMsg["createTime"]
+        delete updateMsg["modifyTime"]
+        delete updateMsg["specDO"]
+        delete updateMsg["courseTimeList"]
+
+        // console.log(updateMsg)
+        const res = await this.$http.patch('courses/'+this.updateform.courseId, updateMsg);
         const {status, msg} = res.data
         if (status === 200) {
           this.$message.success("更新成功!")
