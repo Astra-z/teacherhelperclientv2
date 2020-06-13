@@ -159,7 +159,6 @@
         <!--<el-input v-model="specDO.specName" autocomplete="off"></el-input>-->
         <!--</el-form-item>-->
 
-
         <el-form-item label="上课地点" :label-width="formLabelWidth">
           <el-input v-model="updateform.courseAddress" autocomplete="off"></el-input>
         </el-form-item>
@@ -283,9 +282,6 @@
         const data=course.specDO
         this.updateform=course;
         this.updateform.specName=data.specName
-        console.log(this.updateform)
-        // 查找菜单
-        // console.log(this.updateform)
       },
       //更新course
       async updateCourse() {
@@ -296,9 +292,9 @@
         delete updateMsg["specDO"]
         delete updateMsg["courseTimeList"]
 
-        // console.log(updateMsg)
         const res = await this.$http.patch('courses/'+this.updateform.courseId, updateMsg);
         const {status, msg} = res.data
+        console.log(res)
         if (status === 200) {
           this.$message.success("更新成功!")
           this.getCourseList();

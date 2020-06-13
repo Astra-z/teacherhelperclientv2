@@ -157,6 +157,7 @@
 </template>
 
 <script>
+  import moment from 'moment'
   export default {
 
     name: "note",
@@ -190,8 +191,7 @@
       this.getNoteList();
     },
     methods: {
-
-       //改变开关
+      //改变开关
       async changeNoteSwitch(note){
         let startTime=new Date().getTime();
         let endTime=new Date(note.endTime).getTime();
@@ -243,6 +243,7 @@
           this.$message.error("提醒时间不能小于等于当前时间！")
           return
         }
+        this.insertform.startTime=moment(this.insertform.startTime).format('YYYY-MM-DD HH:mm:ss')
         // console.log(this.insertform)
         const res = await this.$http.post('notes/', this.insertform);
         const {status, msg} = res.data
@@ -260,7 +261,6 @@
         this.updatedialogFormVisible=true;
         //选中的menus传到对话框
         this.updateform=note;
-
       },
       //更新note
       async updateNote() {
@@ -272,6 +272,8 @@
           this.$message.error("提醒时间不能小于等于当前时间！")
           return
         }
+        delete this.updateform["modifyTime"]
+        delete this.updateform["createTime"]
         const res = await this.$http.patch('notes/'+this.updateform.noteId, this.updateform);
         const {status, msg} = res.data
         if (status === 200) {
