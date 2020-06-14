@@ -13,6 +13,9 @@ import Course from '../components/manage/course.vue'
 import CourseAdd from '../components/manage/courseadd.vue'
 import CourseDetail from  '../components/manage/coursedetail.vue'
 import Note from  '../components/manage/note.vue'
+import Score from '../components/manage/score.vue'
+import StudentMentor from '../components/manage/notesend.vue'
+import Info from '../components/manage/studentinfo.vue'
 
 Vue.use(Router)
 
@@ -72,6 +75,21 @@ export default new Router({
           name:'note',
           path:'/note',
           component:Note
+        },
+        {
+          name:'score',
+          path:'/score',
+          component:Score
+        },
+        {
+          name:'notesend',
+          path:'/studentmentor',
+          component:StudentMentor
+        },
+        {
+          name:'studentinfo',
+          path:'/studentinfo/:studentId',
+          component:Info
         },
       ]
     }

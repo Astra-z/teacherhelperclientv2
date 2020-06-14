@@ -68,8 +68,6 @@
             <el-form-item label="备注">
               <span>{{ props.row.remark||'无' }}</span>
             </el-form-item>
-
-
           </el-form>
         </template>
       </el-table-column>
@@ -362,14 +360,11 @@
         const data=course.specDO
         this.updateform=course;
         this.updateform.specName=data.specName
-        console.log(this.updateform)
-
-        // 查找菜单
-        // console.log(this.updateform)
       },
       //更新course
       async updateCourse() {
         this.updatedialogFormVisible = false;
+
         // let updateMsg=this.updateform;
         // delete updateMsg["createTime"]
         // delete updateMsg["modifyTime"]
@@ -400,6 +395,7 @@
         const res = await this.$http.delete('courses/'+courseId)
         this.deleteId=-1;
         const {status, msg} = res.data
+        console.log(res)
         if (status === 200) {
           this.$message.success("更新成功!")
           this.getCourseList();
@@ -408,7 +404,6 @@
         else {
           this.$message.error("更新失败!")
         }
-
       },
         handleChange(value) {
 
