@@ -186,12 +186,9 @@
           else
             return;
           const username=JSON.parse(localStorage.getItem('user')).username
-          // console.log(this.user)
-          // const res=await this.$http.get(`courses/homeworklist?courseId=${this.myCourse.courseId}&courseHomeworkId=${courseHomeworkId}&username=${username}`)
 
           if(this.user.roleName[0]==='管理员'||this.user.roleName[0]==='教师'){
             const res=await this.$http.get(`courses/homeworklist?courseId=${this.myCourse.courseId}&courseHomeworkId=${courseHomeworkId}`)
-            // console.log(res)
             const courseNameList=res.data.data
             this.fileList=[]
             if(courseNameList!=null){
