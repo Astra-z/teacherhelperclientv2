@@ -33,7 +33,7 @@
   4.router的index.js配置routers
 
 6.设置拦截
-  利用localStorage.setItem('token',data.token)
+  利用sessionStorage.setItem('token',data.token)
   login里面存储token信息
   如果有token信息则显示home 没有就跳转到login
     //获取token
@@ -41,7 +41,7 @@
           //token 跳到登录
         //newVue有实例之前自动触发
         beforeCreate(){
-          const token =localStorage.getItem('token')
+          const token =sessionStorage.getItem('token')
           if(!token){
             this.$router.push({name:'login'})
           }

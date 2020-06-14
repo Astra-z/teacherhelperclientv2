@@ -11,9 +11,9 @@ MyHttpPlugin.install = (Vue)=>{
   axios.interceptors.request.use(
     config => {
 // config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      let token =localStorage.getItem('Authorization')
+      let token =sessionStorage.getItem('Authorization')
       if (token) {
-        config.headers.common['Authorization'] =localStorage.getItem('Authorization');
+        config.headers.common['Authorization'] =sessionStorage.getItem('Authorization');
       }
       return config
     },

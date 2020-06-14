@@ -123,7 +123,7 @@
                      :plain="true"
                      type="success"
                      icon="el-icon-check"
-                     @click="selectCourseOpen(courseList.row.courseId)"
+                     @click="selectCourseOpen(courseList.row)"
                      v-if="(user||{}).roleName[0]=='学生'"
                      circle></el-button>
 
@@ -187,42 +187,52 @@
         </el-form-item>
 
         <div v-for="(value,index) in updateform.courseTimeList">
-
           <el-form-item label="" :label-width="formLabelWidth">
-
-              <h4>第 {{index + 1}}次课:周 {{ value.weekday+1 }} 第 {{ parseInt(value.startLesson )+1 }} - {{parseInt(value.endLesson )+1 }} 节 </h4>
+              <h4>第 {{index+1}}次课:周 {{ value.weekday+1 }} 第 {{ parseInt(value.startLesson )+1 }} - {{parseInt(value.endLesson )+1 }} 节 </h4>
+            <el-row style="margin-bottom: 10px;">
               新时间：
-                <el-select v-model="updateform.courseTimeList.weekday" >
-                  <el-option label="星期一" value="0"></el-option>
-                  <el-option label="星期二" value="1"></el-option>
-                  <el-option label="星期三" value="2"></el-option>
-                  <el-option label="星期四" value="3"></el-option>
-                  <el-option label="星期五" value="4"></el-option>
-                </el-select>
+              <el-select v-model="updateform.courseTimeList[index].weekday+''" >
+                <el-option label="星期一" value="0"></el-option>
+                <el-option label="星期二" value="1"></el-option>
+                <el-option label="星期三" value="2"></el-option>
+                <el-option label="星期四" value="3"></el-option>
+                <el-option label="星期五" value="4"></el-option>
+              </el-select>
+            </el-row>
+            <el-row>
+              <el-col :span="1">
                 第
-                <el-select v-model="updateform.courseTimeList[index].startLesson"   v-bind:placeholder="parseInt(value.startLesson)+1 | numToStr" >
-                  <el-option label="1" value=0></el-option>
-                  <el-option label="2" value=1></el-option>
-                  <el-option label="3" value=2></el-option>
-                  <el-option label="4" value=3></el-option>
-                  <el-option label="5" value=4></el-option>
-                  <el-option label="6" value=5></el-option>
-                  <el-option label="7" value=6></el-option>
-                  <el-option label="8" value=7></el-option>
+              </el-col>
+              <el-col :span="8">
+                <!--:placeholder="(parseInt(value.startLesson)+1)+''"-->
+                <el-select v-model="updateform.courseTimeList[index].startLesson+''"  >
+                  <el-option label="1" value="0"></el-option>
+                  <el-option label="2" value="1"></el-option>
+                  <el-option label="3" value="2"></el-option>
+                  <el-option label="4" value="3"></el-option>
+                  <el-option label="5" value="4"></el-option>
+                  <el-option label="6" value="5"></el-option>
+                  <el-option label="7" value="6"></el-option>
+                  <el-option label="8" value="7"></el-option>
                 </el-select>
-                -
-                <el-select v-model="updateform.courseTimeList[index].endLesson"  v-bind:placeholder="parseInt(value.endLesson)+1 | numToStr">
-                  <el-option label="1" value=0></el-option>
-                  <el-option label="2" value=1></el-option>
-                  <el-option label="3" value=2></el-option>
-                  <el-option label="4" value=3></el-option>
-                  <el-option label="5" value=4></el-option>
-                  <el-option label="6" value=5></el-option>
-                  <el-option label="7" value=6></el-option>
-                  <el-option label="8" value=7></el-option>
+              </el-col>
+              <el-col :span="1" style="text-align: center"><strong>-</strong></el-col>
+              <el-col :span="8">
+                <el-select v-model="updateform.courseTimeList[index].endLesson+''" >
+                  <el-option label="1" value="0"></el-option>
+                  <el-option label="2" value="1"></el-option>
+                  <el-option label="3" value="2"></el-option>
+                  <el-option label="4" value="3"></el-option>
+                  <el-option label="5" value="4"></el-option>
+                  <el-option label="6" value="5"></el-option>
+                  <el-option label="7" value="6"></el-option>
+                  <el-option label="8" value="7"></el-option>
                 </el-select>
+              </el-col>
+              <el-col :span="1">
                 节
-
+              </el-col>
+            </el-row>
           </el-form-item>
 
         </div>
@@ -284,7 +294,7 @@
       },
     },
     created() {
-      this.user=JSON.parse(localStorage.getItem('user'))
+      this.user=JSON.parse(sessionStorage.getItem('user'))
       this.getCourseList();
       this.getCollegeList();
       console.log(this.user)
@@ -386,8 +396,6 @@
       async openDeleteCourseForm(Id){
         this.deletedialogFormVisible = true;
         this.deleteId=Id
-        console.log(this.deleteId)
-
       },
       async deleteCourseForm() {
         this.deletedialogFormVisible = false;
@@ -405,8 +413,7 @@
           this.$message.error("更新失败!")
         }
       },
-        handleChange(value) {
-
+      handleChange(value) {
       },
       //根据专业搜索课程
       async searchCourse(){
@@ -443,12 +450,13 @@
       },
       //学生选课
       selectCourseOpen(course) {
+        console.log(course)
         this.$confirm('是否添加该课程?', '确认', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'info'
         }).then(async () => {
-          if(course.studentNum==course.maxNum){
+          if(course.studentNum===course.maxNum){
             this.$message.error("课程人数已满")
             return
           }

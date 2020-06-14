@@ -111,7 +111,7 @@
       },
       created(){
         this.getCourseList();
-        this.user=JSON.parse(localStorage.getItem('user'))
+        this.user=JSON.parse(sessionStorage.getItem('user'))
       },
       methods:{
         //获取课程信息
@@ -129,7 +129,7 @@
         },
         //上传文件前
         beforeUpload(){
-          const username=JSON.parse(localStorage.getItem('user')).username
+          const username=JSON.parse(sessionStorage.getItem('user')).username
           this.uploaddata.username=username;
           this.uploaddata.courseHomeworkId=this.courseHomeworkId;
           this.uploaddata.courseId=this.myCourse.courseId;
@@ -185,7 +185,7 @@
             this.courseHomeworkId=courseHomeworkId
           else
             return;
-          const username=JSON.parse(localStorage.getItem('user')).username
+          const username=JSON.parse(sessionStorage.getItem('user')).username
 
           if(this.user.roleName[0]==='管理员'||this.user.roleName[0]==='教师'){
             const res=await this.$http.get(`courses/homeworklist?courseId=${this.myCourse.courseId}&courseHomeworkId=${courseHomeworkId}`)

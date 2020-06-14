@@ -124,7 +124,7 @@
       }
     },
     created() {
-      this.user=JSON.parse(localStorage.getItem('user'))
+      this.user=JSON.parse(sessionStorage.getItem('user'))
       this.getStudentList();
     },
     methods: {
@@ -180,8 +180,16 @@
             userId: this.multipleSelection[i].userId
           })
         }
-        console.log(sendData)
         const res = await this.$http.post('studentmentors/sendNote', sendData);
+        const {status, msg} = res.data
+        if (status === 200) {
+          this.$message.success("通知成功!")
+          this.insertNoteForm = {}
+        }
+        else {
+          this.$message.error("通知失败!")
+        }
+        this.insertNoteFormVisible = false;
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;

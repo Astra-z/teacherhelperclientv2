@@ -72,9 +72,7 @@
           studentInfo:{},
           activeName:'1',
           fileActiveName:'',
-          fileList: [
-          ],
-
+          fileList: [],
           courseFileId:-1,
           uploaddata:{},
           //user信息
@@ -89,7 +87,7 @@
       },
       created(){
         this.getStudentInfo();
-        this.user=JSON.parse(localStorage.getItem('user'))
+        this.user=JSON.parse(sessionStorage.getItem('user'))
       },
       methods:{
         //获取学生信息

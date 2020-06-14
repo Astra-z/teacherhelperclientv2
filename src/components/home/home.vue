@@ -71,15 +71,16 @@
         }
       },
       beforeCreate(){
-        const Authorization =localStorage.getItem('Authorization')
+        const Authorization =sessionStorage.getItem('Authorization')
         if(!Authorization){
           this.$router.push({name:'login'})
         }
       },
       created(){
-        this.user =JSON.parse(localStorage.getItem('user'))
+        this.user =JSON.parse(sessionStorage.getItem('user'))
         this.getUserMenu()
         this.initWebSocket()
+        console.log(this.user)
       },
       methods:{
         initWebSocket: function () {
@@ -98,8 +99,8 @@
           console.log("WebSocket连接发生错误");
         },
         websocketonmessage: function (e) {
-          console.log(e)
           const message=JSON.parse(e.data)
+
           for (let i = 0; i <message.length ; i++) {
             let remark
             if(message[i].hasOwnProperty('remark'))
@@ -123,6 +124,7 @@
               //4.将data数据push进newDatas数组中
               newDatas.push(h('p',null,data[i]));
             }
+            console.log(h)
             this.$notify.info({
               title: '提醒消息'+note,
               message: h('div',null, newDatas),
@@ -141,13 +143,13 @@
 
         async handlerSignout(){
           this.websock.close()
-          localStorage.clear()
+          sessionStorage.clear()
           this.$message.success("退出成功")
           this.$router.push({name:'login'})
         },
         async getUserMenu(){
           //获取用户菜单
-          const username=JSON.parse(localStorage.getItem('user')).username
+          const username=JSON.parse(sessionStorage.getItem('user')).username
           const res=await this.$http.get(`/menus/getUserMenus?username=`+username);
           this.menus=res.data.data.children;
           // console.log(this.menus)

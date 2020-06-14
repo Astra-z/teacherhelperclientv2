@@ -50,9 +50,9 @@
               // console.log(Authorization)
              if(status===200){
                 //利用路由跳转路由name为home的组件
-                localStorage.setItem('Authorization',data.Authorization)
-                localStorage.setItem('user',JSON.stringify(data.user))
-                console.log(localStorage.getItem('user'))
+                sessionStorage.setItem('Authorization',data.Authorization)
+                sessionStorage.setItem('user',JSON.stringify(data.user))
+                console.log(sessionStorage.getItem('user'))
                 this.$router.push({name:'home'})
                 this.$message.success(msg);
              }
