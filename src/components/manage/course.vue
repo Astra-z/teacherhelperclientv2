@@ -37,6 +37,44 @@
     <el-table
       :data="courseList"
       style="width: 100%">
+
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="学期">
+              <span>{{ props.row.term }}</span>
+            </el-form-item>
+            <el-form-item label="上课地点">
+              <span>{{ props.row.courseAddress }}</span>
+            </el-form-item>
+
+            <el-form-item style="    margin-right: 0;
+    margin-bottom: 0;
+    width: 100%;" label="上课时间">
+              <div
+                v-for="(value,index) in props.row.courseTimeList">
+
+                <h5>第{{index +1}}
+                  次课:周
+                  {{ value.weekday+1 }}
+                  第
+                  {{value.startLesson}}
+                  -
+                  {{value.endLesson}}
+                  节 </h5>
+              </div>
+            </el-form-item>
+
+            <el-form-item label="备注">
+              <span>{{ props.row.remark||'无' }}</span>
+            </el-form-item>
+
+
+          </el-form>
+        </template>
+      </el-table-column>
+
+
       <el-table-column
         type="index"
         label="#"
@@ -80,13 +118,14 @@
           </el-button>
           <el-button size="mini"
                      v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
+                     @click="openDeleteCourseForm(courseList.row.courseId)"
                      :plain="true" type="danger"
                      icon="el-icon-delete" circle></el-button>
           <el-button size="mini"
                      :plain="true"
                      type="success"
                      icon="el-icon-check"
-                     @click="selectCourseOpen(courseList.row)"
+                     @click="selectCourseOpen(courseList.row.courseId)"
                      v-if="(user||{}).roleName[0]=='学生'"
                      circle></el-button>
 
@@ -119,21 +158,7 @@
     </el-dialog>
 
 
-    <!--更新课程对话框-->
-    <!--<el-dialog title="更新课程" :visible.sync="updatedialogFormVisible">-->
-      <!--<el-form :model="updateform">-->
-        <!--<el-form-item label="课程名" :label-width="formLabelWidth">-->
-          <!--<el-input v-model="updateform.courseName" autocomplete="off"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="专业" :label-width="formLabelWidth">-->
-          <!--<el-input v-model="updateform.specName" autocomplete="off"></el-input>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button @click="updatedialogFormVisible = false">取 消</el-button>-->
-        <!--<el-button type="primary" @click="updateCourse()">确 定</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
+
     <el-dialog title="更新课程" :visible.sync="updatedialogFormVisible">
       <el-form :model="updateform">
         <el-form-item label="课程名" :label-width="formLabelWidth">
@@ -154,12 +179,6 @@
           <el-input v-model="updateform.maxNum" autocomplete="off"></el-input>
         </el-form-item>
 
-
-        <!--<el-form-item label="学期" :label-width="formLabelWidth">-->
-        <!--<el-input v-model="specDO.specName" autocomplete="off"></el-input>-->
-        <!--</el-form-item>-->
-
-
         <el-form-item label="上课地点" :label-width="formLabelWidth">
           <el-input v-model="updateform.courseAddress" autocomplete="off"></el-input>
         </el-form-item>
@@ -169,12 +188,65 @@
           <el-input v-model="updateform.remark" autocomplete="off"></el-input>
         </el-form-item>
 
+        <div v-for="(value,index) in updateform.courseTimeList">
+
+          <el-form-item label="" :label-width="formLabelWidth">
+
+              <h4>第 {{index + 1}}次课:周 {{ value.weekday+1 }} 第 {{ parseInt(value.startLesson )+1 }} - {{parseInt(value.endLesson )+1 }} 节 </h4>
+              新时间：
+                <el-select v-model="updateform.courseTimeList.weekday" >
+                  <el-option label="星期一" value="0"></el-option>
+                  <el-option label="星期二" value="1"></el-option>
+                  <el-option label="星期三" value="2"></el-option>
+                  <el-option label="星期四" value="3"></el-option>
+                  <el-option label="星期五" value="4"></el-option>
+                </el-select>
+                第
+                <el-select v-model="updateform.courseTimeList[index].startLesson"   v-bind:placeholder="parseInt(value.startLesson)+1 | numToStr" >
+                  <el-option label="1" value=0></el-option>
+                  <el-option label="2" value=1></el-option>
+                  <el-option label="3" value=2></el-option>
+                  <el-option label="4" value=3></el-option>
+                  <el-option label="5" value=4></el-option>
+                  <el-option label="6" value=5></el-option>
+                  <el-option label="7" value=6></el-option>
+                  <el-option label="8" value=7></el-option>
+                </el-select>
+                -
+                <el-select v-model="updateform.courseTimeList[index].endLesson"  v-bind:placeholder="parseInt(value.endLesson)+1 | numToStr">
+                  <el-option label="1" value=0></el-option>
+                  <el-option label="2" value=1></el-option>
+                  <el-option label="3" value=2></el-option>
+                  <el-option label="4" value=3></el-option>
+                  <el-option label="5" value=4></el-option>
+                  <el-option label="6" value=5></el-option>
+                  <el-option label="7" value=6></el-option>
+                  <el-option label="8" value=7></el-option>
+                </el-select>
+                节
+
+          </el-form-item>
+
+        </div>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="updatedialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="updateCourse()">确 定</el-button>
       </div>
     </el-dialog>
+<!--删除框-->
+    <el-dialog
+      title="提示"
+      :visible.sync="deletedialogFormVisible"
+      width="30%">
+      <span>是否删除此项？</span>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+    <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+    </span>
+    </el-dialog>
+
   </el-card>
 </template>
 
@@ -197,6 +269,7 @@
         //对话框属性
         updatedialogFormVisible: false,
         insertdialogFormVisible: false,
+        deletedialogFormVisible:false,
         formLabelWidth: '120px',
         insertform: {},
         updateform: {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""},
@@ -205,6 +278,12 @@
         defaultcheckList:[],
         user:{},
       }
+    },
+    filters:{
+      numToStr(num) {
+        num = num.toString()
+        return num
+      },
     },
     created() {
       this.user=JSON.parse(localStorage.getItem('user'))
@@ -284,31 +363,54 @@
         this.updateform=course;
         this.updateform.specName=data.specName
         console.log(this.updateform)
+
         // 查找菜单
         // console.log(this.updateform)
       },
       //更新course
       async updateCourse() {
         this.updatedialogFormVisible = false;
-        let updateMsg=this.updateform;
-        delete updateMsg["createTime"]
-        delete updateMsg["modifyTime"]
-        delete updateMsg["specDO"]
-        delete updateMsg["courseTimeList"]
+        // let updateMsg=this.updateform;
+        // delete updateMsg["createTime"]
+        // delete updateMsg["modifyTime"]
+        // delete updateMsg["specDO"]
+        // delete updateMsg["courseTimeList"]
+        //
+        // // console.log(updateMsg)
+        // const res = await this.$http.patch('courses/'+this.updateform.courseId, updateMsg);
+        // const {status, msg} = res.data
+        // if (status === 200) {
+        //   this.$message.success("更新成功!")
+        //   this.getCourseList();
+        //   this.updateform = {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""}
+        // }
+        // else {
+        //   this.$message.error("更新失败!")
+        // }
+      },
+      async openDeleteCourseForm(Id){
+        this.deletedialogFormVisible = true;
+        this.deleteId=Id
+        console.log(this.deleteId)
 
-        // console.log(updateMsg)
-        const res = await this.$http.patch('courses/'+this.updateform.courseId, updateMsg);
+      },
+      async deleteCourseForm() {
+        this.deletedialogFormVisible = false;
+        let courseId=this.deleteId
+        const res = await this.$http.delete('courses/'+courseId)
+        this.deleteId=-1;
         const {status, msg} = res.data
         if (status === 200) {
           this.$message.success("更新成功!")
           this.getCourseList();
-          this.updateform = {}
+          this.updateform = {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""};
         }
         else {
           this.$message.error("更新失败!")
         }
+
       },
-      handleChange(value) {
+        handleChange(value) {
 
       },
       //根据专业搜索课程
@@ -379,6 +481,8 @@
           this.getCourseList()
         })
       },
+
+
       //复选框单选（待做）
       checkGroupNode() {
       }
@@ -387,6 +491,18 @@
 </script>
 
 <style scoped>
+  .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
   .box-card {
     height: 99%;
   }

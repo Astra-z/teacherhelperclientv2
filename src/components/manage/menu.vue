@@ -135,10 +135,24 @@
           <el-button size="mini"
                      @click="showUpdateMenusDia(menu.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button size="mini"
+                     @click="openDeleteCourseForm(menu.row.id)"
+                     :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <!--删除对话框-->
+    <el-dialog
+      title="提示"
+      :visible.sync="deletedialogFormVisible"
+      width="30%">
+      <span>是否删除此项？</span>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+    <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+    </span>
+    </el-dialog>
 
   </el-card>
 </template>
@@ -165,6 +179,8 @@
 
         insertdialogFormVisible: false,
         updatedialogFormVisible:false,
+        deletedialogFormVisible:false,
+
         formLabelWidth: '120px'
       }
     },
@@ -258,6 +274,27 @@
         else{
           this.$message.error("添加失败!")
         }
+      },
+      async openDeleteCourseForm(Id){
+        this.deletedialogFormVisible = true;
+        this.deleteId=Id
+        console.log(this.deleteId)
+
+      },
+      async deleteCourseForm() {
+        this.deletedialogFormVisible = false;
+        let menuId=this.deleteId
+        const res = await this.$http.delete('menus/'+menuId)
+        this.deleteId=-1;
+        const {status, msg} = res.data
+        if (status === 200) {
+          this.$message.success("更新成功!")
+          this.getpermList();
+        }
+        else {
+          this.$message.error("该菜单仍有角色在使用!")
+        }
+
       },
       //选中复选框
       checkGroupNode(){

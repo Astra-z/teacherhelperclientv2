@@ -66,7 +66,9 @@
             <el-button size="mini"
                        @click="openUpdateUserForm(userList.row)"
                        :plain="true" type="primary" icon="el-icon-edit" circle></el-button>
-            <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
+            <el-button size="mini"
+                       @click="openDeleteCourseForm(userList.row.userId)"
+                       :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -132,6 +134,18 @@
           <el-button type="primary" @click="updateUser()">确 定</el-button>
         </div>
       </el-dialog>
+
+      <!--删除对话框-->
+      <el-dialog
+        title="提示"
+        :visible.sync="deletedialogFormVisible"
+        width="30%">
+        <span>是否删除此项？</span>
+        <span slot="footer" class="dialog-footer">
+    <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+    <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+    </span>
+      </el-dialog>
     </el-card>
   <!--4.分页-->
 </template>
@@ -154,6 +168,8 @@
           //对话框属性
           updatedialogFormVisible: false,
           insertdialogFormVisible: false,
+          deletedialogFormVisible:false,
+
           formLabelWidth: '120px',
           insertform: {},
           updateform: {},
@@ -264,6 +280,27 @@
           else {
             this.$message.error("更新失败!")
           }
+        },
+        async openDeleteCourseForm(Id){
+          this.deletedialogFormVisible = true;
+          this.deleteId=Id
+          console.log(this.deleteId)
+
+        },
+        async deleteCourseForm() {
+          this.deletedialogFormVisible = false;
+          let courseId=this.deleteId
+          const res = await this.$http.delete('users/'+userId)
+          this.deleteId=-1;
+          const {status, msg} = res.data
+          if (status === 200) {
+            this.$message.success("更新成功!")
+            this.getRoleList();
+          }
+          else {
+            this.$message.error("更新失败!")
+          }
+
         },
         checkGroupNode(){},
       }
