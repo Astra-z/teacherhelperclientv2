@@ -191,12 +191,8 @@
               <h4>第 {{index+1}}次课:周 {{ value.weekday+1 }} 第 {{ parseInt(value.startLesson )+1 }} - {{parseInt(value.endLesson )+1 }} 节 </h4>
             <el-row style="margin-bottom: 10px;">
               新时间：
-              <el-select v-model="updateform.courseTimeList[index].weekday+''" >
-                <el-option label="星期一" value="0"></el-option>
-                <el-option label="星期二" value="1"></el-option>
-                <el-option label="星期三" value="2"></el-option>
-                <el-option label="星期四" value="3"></el-option>
-                <el-option label="星期五" value="4"></el-option>
+              <el-select v-model="updateform.courseTimeList[index].weekday" >
+                <el-option v-for="item in selectWeekDayOptionList" :label="item.label" :value="item.value"></el-option>
               </el-select>
             </el-row>
             <el-row>
@@ -205,28 +201,16 @@
               </el-col>
               <el-col :span="8">
                 <!--:placeholder="(parseInt(value.startLesson)+1)+''"-->
-                <el-select v-model="updateform.courseTimeList[index].startLesson+''"  >
-                  <el-option label="1" value="0"></el-option>
-                  <el-option label="2" value="1"></el-option>
-                  <el-option label="3" value="2"></el-option>
-                  <el-option label="4" value="3"></el-option>
-                  <el-option label="5" value="4"></el-option>
-                  <el-option label="6" value="5"></el-option>
-                  <el-option label="7" value="6"></el-option>
-                  <el-option label="8" value="7"></el-option>
+                <el-select v-model="updateform.courseTimeList[index].startLesson"  :placeholder="(updateform.courseTimeList[index].startLesson+1)+''">
+                  <el-option v-for="item in selectOptionList" :label="item.label" :value="item.value"></el-option>
                 </el-select>
               </el-col>
               <el-col :span="1" style="text-align: center"><strong>-</strong></el-col>
               <el-col :span="8">
-                <el-select v-model="updateform.courseTimeList[index].endLesson+''" >
-                  <el-option label="1" value="0"></el-option>
-                  <el-option label="2" value="1"></el-option>
-                  <el-option label="3" value="2"></el-option>
-                  <el-option label="4" value="3"></el-option>
-                  <el-option label="5" value="4"></el-option>
-                  <el-option label="6" value="5"></el-option>
-                  <el-option label="7" value="6"></el-option>
-                  <el-option label="8" value="7"></el-option>
+                <el-select @change="endLessonChange(index)"
+                            v-model="updateform.courseTimeList[index].endLesson" >
+                  <el-option v-for="item in selectOptionList"
+                             :label="item.label" :value="item.value"></el-option>
                 </el-select>
               </el-col>
               <el-col :span="1">
@@ -285,6 +269,64 @@
         //树默认选中节点
         defaultcheckList:[],
         user:{},
+
+        selectOptionList:[
+          {
+            label:"1",
+            value:0
+          },
+          {
+            label:"2",
+            value:1
+          },
+          {
+            label:"3",
+            value:2
+          },
+          {
+            label:"4",
+            value:3
+          },
+          {
+            label:"5",
+            value:4
+          },
+          {
+            label:"6",
+            value:5
+          },
+          {
+            label:"7",
+            value:6
+          },
+          {
+            label:"8",
+            value:7
+          },
+        ],
+
+        selectWeekDayOptionList:[
+          {
+            label:"星期一",
+            value:0
+          },
+          {
+            label:"星期二",
+            value:1
+          },
+          {
+            label:"星期三",
+            value:2
+          },
+          {
+            label:"星期四",
+            value:3
+          },
+          {
+            label:"星期五",
+            value:4
+          },
+        ]
       }
     },
     filters:{
@@ -367,31 +409,22 @@
       async openUpdateCourseForm(course){
         this.updatedialogFormVisible=true;
         // 选中的menus传到对话框
-        const data=course.specDO
         this.updateform=course;
-        this.updateform.specName=data.specName
       },
       //更新course
       async updateCourse() {
+        console.log(this.updateform)
         this.updatedialogFormVisible = false;
-
-        // let updateMsg=this.updateform;
-        // delete updateMsg["createTime"]
-        // delete updateMsg["modifyTime"]
-        // delete updateMsg["specDO"]
-        // delete updateMsg["courseTimeList"]
-        //
-        // // console.log(updateMsg)
-        // const res = await this.$http.patch('courses/'+this.updateform.courseId, updateMsg);
-        // const {status, msg} = res.data
-        // if (status === 200) {
-        //   this.$message.success("更新成功!")
-        //   this.getCourseList();
-        //   this.updateform = {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""}
-        // }
-        // else {
-        //   this.$message.error("更新失败!")
-        // }
+        const res = await this.$http.patch('courses/'+this.updateform.courseId, this.updateform);
+        const {status, msg} = res.data
+        if (status === 200) {
+          this.$message.success("更新成功!")
+          this.getCourseList();
+          this.updateform = {courseName:"",specDO:{specName:""},courseTeacher:"",maxNum:0,courseAddress:"",remark:""}
+        }
+        else {
+          this.$message.error("更新失败!")
+        }
       },
       async openDeleteCourseForm(Id){
         this.deletedialogFormVisible = true;
@@ -460,7 +493,7 @@
             this.$message.error("课程人数已满")
             return
           }
-          console.log(this.selectedCourseList,course.courseId)
+          // console.log(this.selectedCourseList,course.courseId)
           for (let i = 0; i <this.selectedCourseList.length ; i++) {
             if (course.courseId===this.selectedCourseList[i].courseId) {
               this.$message.error("不能重复选择课程")
@@ -469,6 +502,7 @@
           }
           var selectcoursedata={
             studentId:this.user.sid,
+            studentName:this.user.realname,
             courseId:course.courseId,
             teacherId:course.teacherId
           }
@@ -483,6 +517,14 @@
           }
           this.getCourseList()
         })
+      },
+
+      endLessonChange(index){
+
+        if (this.updateform.courseTimeList[index].startLesson>this.updateform.courseTimeList[index].endLesson){
+          this.$message.error("结束节不能小于开始节！")
+          this.updateform.courseTimeList[index].endLesson=this.updateform.courseTimeList[index].startLesson
+        }
       },
 
 

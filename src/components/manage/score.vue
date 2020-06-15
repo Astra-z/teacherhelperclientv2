@@ -51,22 +51,23 @@
         label="姓名">
       </el-table-column>
       <el-table-column
+        prop="courseName"
+        label="课程">
+      </el-table-column>
+      <el-table-column
         prop="score"
-        label="成绩"
-        width="100">
+        label="成绩">
       </el-table-column>
 
       <el-table-column
-        prop=""
+        v-if="(user||{}).roleName[0]==='教师'"
         label="操作">
         <template slot-scope="scoreList">
           <el-button size="mini"
-                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
                      @click="openUpdateScoreForm(scoreList.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle>
           </el-button>
           <el-button size="mini"
-                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
                      :plain="true" type="danger"
                      icon="el-icon-delete" circle></el-button>
         </template>
@@ -178,8 +179,15 @@
         // query	查询参数	可以为空
         // pagenum	当前页码	不能为空
         // pagesize	每页显示条数	不能为空
-        const res = await this.$http
-          .get(`scores/?page=${this.pagenum}&limit=${this.pagesize}`)
+        var res
+        if(this.user.roleName[0]==='教师') {
+          res = await this.$http
+            .get(`scores/?fieldValue=${this.user.sid}&fieldName=teacherId`)
+        }
+        else if(this.user.roleName[0]==='学生') {
+          res = await this.$http
+            .get(`scores/?fieldValue=${this.user.sid}&fieldName=studentId`)
+        }
         const {data, status, msg} = res.data
         if (status === 200) {
           this.scoreList = data;

@@ -56,7 +56,9 @@
                      @click="openStudentInfo(studentList.row)"
                      :plain="true" type="info" icon="el-icon-edit" circle>
           </el-button>
-          <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button size="mini" :plain="true"
+                     @click="openDeleteCourseForm(studentList.row.sid)"
+                     type="danger" icon="el-icon-delete" circle></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -96,6 +98,17 @@
           <el-button type="primary" @click="insertNote()">确 定</el-button>
         </div>
     </el-dialog>
+
+    <el-dialog
+      title="提示"
+      :visible.sync="deletedialogFormVisible"
+      width="30%">
+      <span>是否删除此项？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+        </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -115,6 +128,7 @@
         //对话框属性
         insertNoteFormVisible: false,
         insertdialogFormVisible: false,
+        deletedialogFormVisible:false,
         formLabelWidth: '120px',
         insertform: {},
         insertNoteForm: {},
@@ -180,6 +194,11 @@
             userId: this.multipleSelection[i].userId
           })
         }
+        sendData.push({
+          noteName:'导师消息',
+          remark: this.insertNoteForm.remark,
+          userId: this.user.userId
+        })
         const res = await this.$http.post('studentmentors/sendNote', sendData);
         const {status, msg} = res.data
         if (status === 200) {
@@ -201,6 +220,26 @@
             studentId: student.userId
           }
         })
+      },
+      async openDeleteCourseForm(Id){
+        this.deletedialogFormVisible = true;
+        this.deleteId=Id
+        console.log(this.deleteId)
+
+      },
+      async deleteCourseForm() {
+        this.deletedialogFormVisible = false;
+        let studentId=this.deleteId
+        const res = await this.$http.delete('studentmentors/'+studentId)
+        this.deleteId=-1;
+        const {status, msg} = res.data
+        if (status === 200) {
+          this.$message.success("更新成功!")
+          this.getNoteList();
+        }
+        else {
+          this.$message.error("更新失败!")
+        }
       },
       //复选框单选（待做）
       checkGroupNode() {

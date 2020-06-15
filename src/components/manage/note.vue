@@ -80,7 +80,9 @@
                      @click="openUpdateNoteForm(noteList.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle>
           </el-button>
-          <el-button size="mini" :plain="true" type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button size="mini" :plain="true"
+                     @click="openDeleteCourseForm(noteList.row.noteId)"
+                     type="danger" icon="el-icon-delete" circle></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -153,6 +155,18 @@
         <el-button type="primary" @click="updateNote()">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!--删除对话框-->
+    <el-dialog
+      title="提示"
+      :visible.sync="deletedialogFormVisible"
+      width="30%">
+      <span>是否删除此项？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+        </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -175,6 +189,7 @@
         //对话框属性
         updatedialogFormVisible: false,
         insertdialogFormVisible: false,
+        deletedialogFormVisible: false,
         formLabelWidth: '120px',
         insertform: {
           noteType:'2'
@@ -285,6 +300,26 @@
           this.$message.error("更新失败!")
         }
         this.updatedialogFormVisible=false
+      },
+      async openDeleteCourseForm(Id){
+        this.deletedialogFormVisible = true;
+        this.deleteId=Id
+        console.log(this.deleteId)
+
+      },
+      async deleteCourseForm() {
+        this.deletedialogFormVisible = false;
+        let userId=this.deleteId
+        const res = await this.$http.delete('notes/'+userId)
+        this.deleteId=-1;
+        const {status, msg} = res.data
+        if (status === 200) {
+          this.$message.success("更新成功!")
+          this.getNoteList();
+        }
+        else {
+          this.$message.error("更新失败!")
+        }
       },
       //复选框单选（待做）
       checkGroupNode() {

@@ -142,9 +142,9 @@
         width="30%">
         <span>是否删除此项？</span>
         <span slot="footer" class="dialog-footer">
-    <el-button @click="deletedialogFormVisible = false">取 消</el-button>
-    <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
-    </span>
+        <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteCourseForm()">确 定</el-button>
+        </span>
       </el-dialog>
     </el-card>
   <!--4.分页-->
@@ -289,18 +289,17 @@
         },
         async deleteCourseForm() {
           this.deletedialogFormVisible = false;
-          let courseId=this.deleteId
+          let userId=this.deleteId
           const res = await this.$http.delete('users/'+userId)
           this.deleteId=-1;
           const {status, msg} = res.data
           if (status === 200) {
             this.$message.success("更新成功!")
-            this.getRoleList();
+            this.getUserList();
           }
           else {
             this.$message.error("更新失败!")
           }
-
         },
         checkGroupNode(){},
       }
