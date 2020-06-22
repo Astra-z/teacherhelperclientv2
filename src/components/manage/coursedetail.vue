@@ -17,6 +17,12 @@
         <p>上课地点：{{this.myCourse.courseAddress}}</p>
         <p>开课时间：{{((this.myCourse.courseTimeList||{})[0]||{}).startTime}}</p>
         <p>课程备注：{{this.myCourse.remark||'无'}}</p>
+        <el-button
+          v-if="user.roleName[0]==='学生'"
+          style="float: left"
+          type="success" plain size="small"
+          @click="openDeleteForm()">退课
+        </el-button>
       </el-tab-pane>
       <el-tab-pane label="课程任务" name="2">任务</el-tab-pane>
 
@@ -38,6 +44,9 @@
             v-for="(homeworkItem,homeworkindex) in courseHomeworkList"
             :key="homeworkindex" :title="homeworkItem.courseHomeworkName"
             :name="homeworkItem.courseHomeworkId">
+            <el-button size="mini" v-if="user.roleName[0]==='教师'"
+                       @click="openDeleteHomeworkForm(homeworkItem.courseHomeworkId)"
+                       :plain="true" type="danger" icon="el-icon-delete" ></el-button>
             <h3>作业概述：</h3>
             <p style="margin-bottom: 30px">{{homeworkItem.remark||'无'}}</p>
               <el-upload
@@ -80,6 +89,28 @@
         <el-button type="primary" @click="insertHomework()">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="提示"
+      :visible.sync="deletedialogFormVisible"
+      width="30%">
+      <span>是否退课？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deletedialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteForm()">确 定</el-button>
+        </span>
+    </el-dialog>
+
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteHomeworkdialogFormVisible"
+      width="30%">
+      <span>是否删除该项作业？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteHomeworkdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteHomeworkForm()">确 定</el-button>
+        </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -102,8 +133,11 @@
           //user信息
           user:{},
           //对话框信息
+          deleteId:-1,
           updatedialogFormVisible: false,
           insertdialogFormVisible: false,
+          deletedialogFormVisible: false,
+          deleteHomeworkdialogFormVisible: false,
           formLabelWidth: '120px',
           insertform: {},
           updateform: {},
@@ -226,6 +260,45 @@
           this.insertdialogFormVisible=false
           this.insertform={}
           this.getHomework()
+        },
+        async openDeleteForm(){
+          this.deletedialogFormVisible = true;
+          this.deleteId=this.courseId
+          console.log(this.deleteId)
+        },
+        async deleteForm() {
+          this.deletedialogFormVisible = false;
+          let scoreId=this.deleteId
+          const res = await this.$http.delete(`courses/dropCourse?studentId=${this.user.sid}&courseId=${this.deleteId}`)
+          this.deleteId=-1;
+          const {status, msg} = res.data
+          if (status === 200) {
+            this.$message.success("退课成功!")
+            this.$router.push({name:'courselist'})
+          }
+          else {
+            this.$message.error("退课失败!")
+          }
+        },
+        async openDeleteHomeworkForm(Id){
+          this.deleteHomeworkdialogFormVisible = true;
+          this.deleteId=Id
+          console.log(this.deleteId)
+
+        },
+        async deleteHomeworkForm() {
+          this.deleteHomeworkdialogFormVisible = false;
+          let homeworkId=this.deleteId
+          const res = await this.$http.delete('coursehomeworks/'+homeworkId)
+          this.deleteId=-1;
+          const {status, msg} = res.data
+          if (status === 200) {
+            this.$message.success("更新成功!")
+            this.getHomework();
+          }
+          else {
+            this.$message.error("更新失败!")
+          }
         },
       }
     }
