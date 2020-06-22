@@ -16,6 +16,8 @@ import Note from  '../components/manage/note.vue'
 import Score from '../components/manage/score.vue'
 import StudentMentor from '../components/manage/notesend.vue'
 import Info from '../components/manage/studentinfo.vue'
+import Jump from '../components/manage/jumpinfo.vue'
+import Weather from '../components/manage/weather.vue'
 
 Vue.use(Router)
 
@@ -90,6 +92,16 @@ export default new Router({
           name:'studentinfo',
           path:'/studentinfo/:studentId',
           component:Info
+        },
+        {
+          name:'jumpto',
+          path:'/jumpto',
+          component:Jump
+        },
+        {
+          name:'weather',
+          path:'/weather',
+          component:Weather
         },
       ]
     }

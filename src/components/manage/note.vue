@@ -16,7 +16,7 @@
       <el-button class="input_button" slot="append" icon="el-icon-search" size="mini"></el-button>
     </el-input>
     <el-button type="success" plain @click="openInsertNoteForm()">添加</el-button>
-    <el-button type="success" plain @click="openInsertNoteForm()">添加课程提醒</el-button>
+    <el-button type="success" plain @click="openInsertCourseNoteForm()">添加课程提醒</el-button>
     <!--3.表格-->
     <el-table
       :data="noteList"
@@ -149,10 +149,30 @@
           </el-date-picker>
         </el-form-item>
       </el-form>
-
       <div slot="footer" class="dialog-footer">
         <el-button @click="updatedialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="updateNote()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--添加课程提醒-->
+    <el-dialog title="添加课程提醒" :visible.sync="insertCourseFormVisible">
+      <el-form>
+        <el-tree
+          :data="coursedata"
+          show-checkbox
+          :default-expand-all="false"
+          node-key="courseId"
+          ref="DeviceGroupTree"
+          :highlight-current="true"
+          :check-strictly="true"
+          @check="checkGroupNode()"
+          :props="{label: 'courseName'}">
+        </el-tree>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="insertCourseFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="insertCourseNote()">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -181,14 +201,16 @@
         query: "",
         fieldName: "",
         //用户列表
+        courseNoteList:[],
         noteList: [],
         total: -1,
         pagenum: 1,
         pagesize: 10,
-
+        coursedata:{},
         //对话框属性
         updatedialogFormVisible: false,
         insertdialogFormVisible: false,
+        insertCourseFormVisible: false,
         deletedialogFormVisible: false,
         formLabelWidth: '120px',
         insertform: {
@@ -204,8 +226,20 @@
     created() {
       this.user=JSON.parse(sessionStorage.getItem('user'))
       this.getNoteList();
+      this.getCourseList();
     },
     methods: {
+      async getCourseList() {
+        const res = await this.$http.get(`courses/?fieldValue=${this.user.sid}&fieldName=teacherId`)
+        const {data, status, msg} = res.data
+        if (status === 200) {
+          this.coursedata = data;
+          this.total = data.length
+        }
+        else {
+          this.$message.error(msg)
+        }
+      },
       //改变开关
       async changeNoteSwitch(note){
         let startTime=new Date().getTime();
@@ -321,6 +355,63 @@
           this.$message.error("更新失败!")
         }
       },
+      async openInsertCourseNoteForm () {
+        this.getCourseList()
+        this.insertCourseFormVisible=true
+      },
+      async insertCourseNote(){
+        var courseList=this.$refs.DeviceGroupTree.getCheckedNodes()
+        var noteList=[]
+        let startTime=new Date().getTime();
+        for (let i = 0; i < courseList.length; i++) {
+          for (let j = 0; j <courseList[i].courseTimeList.length ; j++) {
+            let endTime=this.getNextCourseTime(courseList[i].courseTimeList[j].weekday,courseList[i].courseTimeList[j].startLesson)
+            noteList.push({
+              noteName: '上课',
+              remark: courseList[i].courseName,
+              noteType: 1,
+              userId: this.user.userId,
+              noteSwitch: true,
+              endTime: endTime,
+              startTime: startTime
+            })
+          }
+        }
+        console.log(noteList)
+        for (let i = 0; i <noteList.length ; i++) {
+          const res=await this.$http.post('notes/', noteList[i]);
+        }
+        this.insertCourseFormVisible=false;
+        this.getNoteList()
+      },
+      getNextCourseTime(WeekDay,StartLesson){
+        let noteTime=new Date
+        let now = new Date();
+        let nowWeek=now.getDay()-1
+        if(nowWeek>WeekDay){
+          now.setDate(now.getDate()+7-nowWeek-WeekDay)
+        }
+        else if(nowWeek===WeekDay){
+          let nowHour=now.getHours()
+          if(nowHour>(8+StartLesson)){
+            now.setDate(now.getDate()+7)
+          }
+          else if(nowHour==(8+StartLesson)){
+            let nowMin=now.getMinutes()
+            if(nowMin>0){
+              now.setDate(now.getDate()+7)
+            }
+          }
+        }
+        else{
+          now.setDate(now.getDate()+WeekDay-nowWeek)
+        }
+        now.setHours(8+StartLesson)
+        now.setMinutes(-30)
+        now.setSeconds(0)
+        return now
+      },
+
       //复选框单选（待做）
       checkGroupNode() {
       }

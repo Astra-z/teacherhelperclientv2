@@ -3,7 +3,7 @@
     <!--1.面包屑-->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/courselist' }">学生列表</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/studentmentor' }">学生列表</el-breadcrumb-item>
       <el-breadcrumb-item>学生详情</el-breadcrumb-item>
     </el-breadcrumb>
 
@@ -33,9 +33,10 @@
             :file-list="fileList"
             :multiple="false"
             :auto-upload="false">
-            <el-button
+            <el-button v-if="(user||{}).roleName[0]==='学生'"
               slot="trigger" size="small" type="primary">选取文件</el-button>
             <el-button
+              v-if="(user||{}).roleName[0]==='学生'"
               style="margin-left: 10px;" size="small"
               type="success" @click="submitUpload()">上传文件</el-button>
           </el-upload>
@@ -67,7 +68,7 @@
       data(){
         return {
           studentId:this.$route.params.studentId,
-          mentorId:'',
+          mentorId:-1,
           studentSid:'',
           studentInfo:{},
           activeName:'1',
@@ -95,6 +96,7 @@
           const res = await this.$http
             .get(`users/`+this.studentId)
           const {data, status, msg} = res.data
+          console.log(data)
           if (status === 200) {
             this.studentInfo=data;
           }
@@ -142,8 +144,11 @@
         async getFile(){
           if(this.user.roleName[0]==='学生'){
             this.studentSid=this.studentInfo.sid
-            const res=await this.$http.get(`studentmentors/?fieldValue=${this.studentSid}&fieldName=studentId`)
-            this.mentorId=res.data.mentorId
+            const res=await this.$http.get(`studentmentors/?fieldValue=${this.user.userId}&fieldName=studentId`)
+            const {data}=res.data
+            const mid=data[0].mentorId
+            const res1=await this.$http.get(`users/`+mid)
+            this.mentorId=res1.data.data.sid
           }
           else if(this.user.roleName[0]==='管理员'||this.user.roleName[0]==='教师')
           {

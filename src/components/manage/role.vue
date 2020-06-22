@@ -203,6 +203,7 @@
       //添加role
       async insertRole() {
         this.insertform.menuIdList = this.$refs.DeviceGroupTree.getCheckedKeys();
+        console.log(this.insertform.menuIdList)
         if (this.insertform.menuIdList.length <= 0) {
           this.$message.error("至少选择一个权限！")
           return;

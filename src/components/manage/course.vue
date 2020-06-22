@@ -21,7 +21,7 @@
         icon="el-icon-search" size="large"></el-button>
     </div>
     <br>
-    <div v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'">
+    <div v-if="(user||{}).roleName[0]==='管理员'">
       <label>课程名：</label>
       <el-input class="input_text"
                 placeholder="请输入内容"
@@ -41,16 +41,16 @@
       <el-table-column type="expand">
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="学期">
+            <el-form-item label="学期:">
               <span>{{ props.row.term }}</span>
             </el-form-item>
-            <el-form-item label="上课地点">
+            <el-form-item label="上课地点:">
               <span>{{ props.row.courseAddress }}</span>
             </el-form-item>
 
             <el-form-item style="    margin-right: 0;
     margin-bottom: 0;
-    width: 100%;" label="上课时间">
+    width: 100%;" label="上课时间:">
               <div
                 v-for="(value,index) in props.row.courseTimeList">
 
@@ -65,7 +65,7 @@
               </div>
             </el-form-item>
 
-            <el-form-item label="备注">
+            <el-form-item label="备注:">
               <span>{{ props.row.remark||'无' }}</span>
             </el-form-item>
           </el-form>
@@ -110,21 +110,22 @@
                      @click="openInfoCourseForm(courseList.row)"
                      :plain="true" type="info" icon="el-icon-more" circle></el-button>
           <el-button size="mini"
-                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
+                     v-if="(user||{}).roleName[0]==='管理员'"
                      @click="openUpdateCourseForm(courseList.row)"
                      :plain="true" type="primary" icon="el-icon-edit" circle>
           </el-button>
           <el-button size="mini"
-                     v-if="(user||{}).roleName[0]=='管理员'||(user||{}).roleName[0]=='教师'"
+                     v-if="(user||{}).roleName[0]==='管理员'"
                      @click="openDeleteCourseForm(courseList.row.courseId)"
                      :plain="true" type="danger"
                      icon="el-icon-delete" circle></el-button>
+          <!--<el-button size="mini" type="warning" icon="el-icon-star-off" circle></el-button>-->
           <el-button size="mini"
                      :plain="true"
                      type="success"
                      icon="el-icon-check"
                      @click="selectCourseOpen(courseList.row)"
-                     v-if="(user||{}).roleName[0]=='学生'"
+                     v-if="(user||{}).roleName[0]==='学生'"
                      circle></el-button>
 
         </template>
@@ -192,7 +193,7 @@
             <el-row style="margin-bottom: 10px;">
               新时间：
               <el-select v-model="updateform.courseTimeList[index].weekday" >
-                <el-option v-for="item in selectWeekDayOptionList" :label="item.label" :value="item.value"></el-option>
+                <el-option v-for="(item,weekdayindex) in selectWeekDayOptionList" :label="item.label" :value="item.value" :key="weekdayindex"></el-option>
               </el-select>
             </el-row>
             <el-row>
@@ -202,14 +203,14 @@
               <el-col :span="8">
                 <!--:placeholder="(parseInt(value.startLesson)+1)+''"-->
                 <el-select v-model="updateform.courseTimeList[index].startLesson"  :placeholder="(updateform.courseTimeList[index].startLesson+1)+''">
-                  <el-option v-for="item in selectOptionList" :label="item.label" :value="item.value"></el-option>
+                  <el-option v-for="(item,startindex) in selectOptionList" :label="item.label" :value="item.value" :key="startindex"></el-option>
                 </el-select>
               </el-col>
               <el-col :span="1" style="text-align: center"><strong>-</strong></el-col>
               <el-col :span="8">
                 <el-select @change="endLessonChange(index)"
                             v-model="updateform.courseTimeList[index].endLesson" >
-                  <el-option v-for="item in selectOptionList"
+                  <el-option v-for="(item,endindex) in selectOptionList" :key="endindex"
                              :label="item.label" :value="item.value"></el-option>
                 </el-select>
               </el-col>
